@@ -1,0 +1,85 @@
+{
+ "recorded": "2026-08-14",
+ "host": "WSL2 Ubuntu 22.04 on Threadripper workstation",
+ "hardware": {
+  "logical_cores": 32,
+  "physical_cores_assumed": 16,
+  "ram_total_gb": 23,
+  "disk_free_gb": 59.0,
+  "gpu": "NOT AVAILABLE - nvidia-smi absent; CUDA not exposed to this WSL2 instance"
+ },
+ "compilers": {
+  "gcc": "11",
+  "gxx": "11",
+  "mpi": "mpirun (Open MPI) 4.1.2",
+  "gfortran": "11"
+ },
+ "lammps": {
+  "version": "",
+  "build": "source, CMake Release, MPI+OMP, FFTW3, CPU-only (no CUDA)",
+  "prefix": "/home/azan/.local",
+  "packages": [
+   "ELECTRODE",
+   "KSPACE",
+   "MOLECULE",
+   "RIGID",
+   "EXTRA-FIX",
+   "EXTRA-PAIR",
+   "EXTRA-COMPUTE",
+   "MANYBODY",
+   "MISC",
+   "REPLICA",
+   "MC"
+  ],
+  "electrode_styles": [
+   "electrode/conp",
+   "electrode/conq",
+   "electrode/thermo",
+   "ewald/electrode",
+   "pppm/electrode"
+  ],
+  "verification": "planar-pppm-ew3dc example reproduces shipped reference log BITWISE across all 10 steps (induced charges +/-0.030912769 -> +/-0.30912769, percdev -1.4789807). Proof: 01_env/electrode_proof/"
+ },
+ "openfoam": {
+  "version": "v2406 (ESI) patch=260127",
+  "dir": "/usr/lib/openfoam/openfoam2406",
+  "also_present": [
+   "openfoam2512",
+   "openfoam11"
+  ],
+  "solvers_verified": [
+   "interFoam",
+   "interIsoFoam",
+   "multiphaseEulerFoam",
+   "reactingMultiphaseEulerFoam",
+   "chtMultiRegionFoam",
+   "potentialFoam"
+  ],
+  "wmake": "VERIFIED - custom libso compiles and links (libt12SmokeTest.so)",
+  "user_libbin": "/home/azan/OpenFOAM/azan-v2406/platforms/linux64GccDPInt32Opt/lib"
+ },
+ "python": {
+  "env": "/home/azan/venvs/t12",
+  "created_with": "virtualenv (python3-venv unavailable without sudo)",
+  "key": {
+   "numpy": "2.2.6",
+   "scipy": "1.15.3",
+   "pandas": "2.3.3",
+   "cantera": "3.2.0",
+   "ase": "3.29.0",
+   "MDAnalysis": "2.9.0",
+   "pyvista": "0.48.4",
+   "scikit-learn": "1.7.2"
+  }
+ },
+ "builders": {
+  "packmol": "built from source (serial make; -j breaks module ordering)",
+  "moltemplate": "pip, in venv"
+ },
+ "not_installed": {
+  "ccache": "needs sudo; not required",
+  "xvfb": "needs sudo; PyVista off-screen via osmesa/vtk fallback if needed",
+  "openFuelCell2": "NOT a dependency - E25 confirms no alkaline model (future work)"
+ },
+ "sudo": "UNAVAILABLE (no password/tty). All installs done to user prefixes. Not a blocker."
+}

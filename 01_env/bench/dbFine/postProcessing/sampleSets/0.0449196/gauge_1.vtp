@@ -1,0 +1,23 @@
+<?xml version='1.0'?>
+<!-- time='0.0449196' -->
+<VTKFile type='PolyData' version='0.1' byte_order='LittleEndian' header_type='UInt64'>
+  <PolyData>
+    <FieldData>
+      <DataArray type='Float32' Name='TimeValue' NumberOfTuples='1' format='binary'>
+BAAAAAAAAACj/Tc9
+      </DataArray>
+    </FieldData>
+    <Piece NumberOfPoints='17'>
+      <Points>
+        <DataArray type='Float32' Name='Points' NumberOfComponents='3' format='binary'>
+zAAAAAAAAAAK16M8M/hNPgrXozsK16M8kDxRPgrXozsK16M87oBUPgrXozsK16M8TMVXPgrXozsK16M8qQlbPgrXozsK16M8B05ePgrXozsK16M8ZZJhPgrXozsK16M8wtZkPgrXozsK16M8IBtoPgrXozsK16M8fl9rPgrXozsK16M826NuPgrXozsK16M8OehxPgrXozsK16M8lyx1PgrXozsK16M89HB4PgrXozsK16M8UrV7PgrXozsK16M8sPl+PgrXozsK16M8Bx+BPgrXozs=
+        </DataArray>
+      </Points>
+      <PointData>
+        <DataArray type='Float32' Name='alpha.water' format='binary'>
+RAAAAAAAAAABAIA/AQCAPwIAgD8CAIA/AgCAPwIAgD8CAIA/AwCAPwIAgD8BAIA/AACAP///fz/9/38/+v9/P/r/fz/7/38/+v9/Pw==
+        </DataArray>
+      </PointData>
+    </Piece>
+  </PolyData>
+</VTKFile>

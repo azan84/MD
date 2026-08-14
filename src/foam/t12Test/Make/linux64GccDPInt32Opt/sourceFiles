@@ -1,0 +1,4 @@
+SOURCE = \
+t12SmokeTest.C \
+
+# sources

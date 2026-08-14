@@ -1,0 +1,90 @@
+-- The CXX compiler identification is GNU 11.4.0
+-- The C compiler identification is GNU 11.4.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found Git: /usr/bin/git (found version "2.34.1") 
+-- Running check for auto-generated files from make-based build system
+-- Found MPI_CXX: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so (found version "3.1") 
+-- Found MPI: TRUE (found version "3.1") found components: CXX 
+-- Looking for C++ include omp.h
+-- Looking for C++ include omp.h - found
+-- Found OpenMP_CXX: -fopenmp (found version "4.5") 
+-- Found OpenMP: TRUE (found version "4.5") found components: CXX 
+-- Looking for sgemm_
+-- Looking for sgemm_ - not found
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Looking for sgemm_
+-- Looking for sgemm_ - found
+-- Found BLAS: /usr/lib/x86_64-linux-gnu/libopenblas.so  
+-- Looking for cheev_
+-- Looking for cheev_ - found
+-- Found LAPACK: /usr/lib/x86_64-linux-gnu/libopenblas.so;-lm;-ldl  
+-- Found JPEG: /usr/lib/x86_64-linux-gnu/libjpeg.so (found version "80") 
+-- Found GZIP: /usr/bin/gzip  
+-- Found FFMPEG: /usr/bin/ffmpeg  
+-- Found PkgConfig: /usr/bin/pkg-config (found version "0.29.2") 
+-- Checking for module 'fftw3'
+--   Found fftw3, version 3.3.8
+-- Found FFTW3: /usr/lib/x86_64-linux-gnu/libfftw3.so  
+-- Generating style headers...
+-- Generating package headers...
+-- Generating lmpinstalledpkgs.h...
+-- Found Python3: /usr/bin/python3.10 (found version "3.10.12") found components: Interpreter 
+-- The following tools and libraries have been found and configured:
+ * Git
+ * MPI
+ * OpenMP
+ * LAPACK
+ * Threads
+ * BLAS
+ * JPEG
+ * PkgConfig
+ * FFTW3
+ * Python3
+
+-- <<< Build configuration >>>
+   LAMMPS Version:   2025.7.22.5 stable_22Jul2025_update5
+   Operating System: Linux Ubuntu" 22.04
+   CMake Version:    3.22.1
+   Build type:       Release
+   Install path:     /home/azan/.local
+   Generator:        Unix Makefiles using /usr/bin/gmake
+-- Enabled packages: ELECTRODE;EXTRA-COMPUTE;EXTRA-FIX;EXTRA-PAIR;KSPACE;MANYBODY;MC;MISC;MOLECULE;REPLICA;RIGID
+-- <<< Compilers and Flags: >>>
+-- C++ Compiler:     /usr/bin/c++
+      Type:          GNU
+      Version:       11.4.0
+      C++ Standard:  17
+      C++ Flags:     -O3 -DNDEBUG
+      Defines:       LAMMPS_SMALLBIG;LAMMPS_MEMALIGN=64;LAMMPS_OMP_COMPAT=4;LAMMPS_JPEG;LAMMPS_GZIP;LAMMPS_FFMPEG;FFT_FFTW3;FFT_FFTW_THREADS
+-- C compiler:       /usr/bin/cc
+      Type:          GNU
+      Version:       11.4.0
+      C Flags:       -O3 -DNDEBUG
+-- <<< Linker flags: >>>
+-- Executable name:  lmp
+-- Static library flags:    
+-- <<< MPI flags >>>
+-- MPI_defines:      MPICH_SKIP_MPICXX;OMPI_SKIP_MPICXX;_MPICC_H
+-- MPI includes:     /usr/lib/x86_64-linux-gnu/openmpi/include;/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi
+-- MPI libraries:    /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so;/usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so;
+-- <<< FFT settings >>>
+-- Primary FFT lib:  FFTW3
+-- Using double precision FFTs
+-- Using threaded FFTs
+-- Using builtin distributed FFT algorithms
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/azan/src/lammps/build

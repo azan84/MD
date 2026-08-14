@@ -1,0 +1,19 @@
+LAMMPS (22 Jul 2025 - Update 5)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread.
+  using 1 OpenMP thread(s) per MPI task
+Created orthogonal box = (0 0 0) to (100 100 100)
+  2 by 2 by 4 MPI processor grid
+ERROR: Invalid format in Bonds section of molecule file:  (src/lammps/src/molecule.cpp:2769)
+Last input line: molecule water spce.mol 
+                                ^^^^^^^^
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun detected that one or more processes exited with non-zero status, thus causing
+the job to be terminated. The first process to do so was:
+
+  Process name: [[55913,1],4]
+  Exit code:    1
+--------------------------------------------------------------------------

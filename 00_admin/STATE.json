@@ -1,0 +1,29 @@
+{
+  "project": "T12 rev B — MD-derived wettability as a bubble-coverage closure for open-source AWE CFD",
+  "corpus_hash": "9dd4b795a80ec687",
+  "source_report": "/home/azan/electrode/gap_discovery_report.md",
+  "proj_root": "/home/azan/research/T12_MD_wettability_closure",
+  "phase": "0",
+  "stage": "S-A",
+  "last_completed_step": "0.1 skeleton created, git init, apt install dispatched",
+  "active_runs": [
+    {"id": "apt-install", "kind": "provision", "status": "running", "log": "01_env/install_apt.log"}
+  ],
+  "pending_audits": [],
+  "next_action": "0.2 build LAMMPS with PKG_ELECTRODE (CPU-only — no CUDA in WSL); 0.3 python venv; 0.4 packmol/moltemplate; 0.5 OpenFOAM wmake smoke test; 0.6 benchmark",
+  "hard_constraints": {
+    "disk_free_gb_at_phase0": 61,
+    "disk_stop_threshold_gb": 40,
+    "wsl_ram_gb": 23,
+    "physical_cores": 16,
+    "logical_cores": 32,
+    "gpu_available": false,
+    "gpu_note": "nvidia-smi absent — CUDA not exposed to this WSL2 instance. LAMMPS built CPU-only."
+  },
+  "environment_findings": {
+    "openfoam": "v2406 present at /usr/lib/openfoam/openfoam2406 (also 2512, openfoam11)",
+    "cantera": "3.2.0 already in system python3",
+    "present": ["mpirun", "gmsh", "cmake", "git", "ffmpeg"],
+    "missing_at_probe": ["lammps", "packmol", "moltemplate", "ccache", "conda"]
+  }
+}
