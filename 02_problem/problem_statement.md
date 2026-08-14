@@ -22,13 +22,27 @@ Cell voltage at current density *j*:
 through the remaining area (1 − Θ), so the *local* current density rises to j/(1 − Θ). Through
 Butler–Volmer,
 
-**(2)**  `j = (1 − Θ) · j₀ · [exp(α_a F η_act / RT) − exp(−α_c F η_act / RT)]`
+**(2)**  `j = (1 − Θ) · j₀ · [exp(α_a n F η_act / RT) − exp(−α_c n F η_act / RT)]`
+
+> **Kinetic convention, stated not assumed (corrected at Audit 1, A1.1).** The exponent carries `n`
+> explicitly; this work uses **n = 1**, α = 0.5, so `αn = 0.5`. Inserting the overall two-electron
+> HER stoichiometry into a one-step Butler–Volmer exponent is not automatically justified and is not
+> done here. `j` is the **geometric** current density; `j₀` is referenced to the clean exposed area;
+> the porous-electrode roughness/ECSA factor is carried explicitly, never hidden inside `j₀`.
+> A single Θ is valid only because this work models the **cathode (HER)** and does not model the
+> anode — it is not a claim that one Θ describes both electrodes.
 
 and in the Tafel limit the coverage penalty is explicit:
 
-**(3)**  `Δη_act = (RT / α F) · ln[1 / (1 − Θ)]`
+**(3)**  `Δη_act = (RT / (α n F)) · ln[1 / (1 − Θ)]`
 
-Θ = 0.2 costs ≈ 6 mV at α = 0.5, 353 K; **Θ = 0.8 costs ≈ 49 mV**. The penalty is strongly
+At α = 0.5, n = 1, T = 353 K, `RT/(αnF) = 60.84 mV`, so **Θ = 0.2 costs 13.6 mV and Θ = 0.8 costs
+97.9 mV**.
+
+> **⚠️ CORRECTED AT AUDIT 1 (A1.1).** The values previously stated here — 6 mV and 49 mV — silently
+> assumed `αn = 1` (n = 2) while the printed equation omitted `n`. Equation and numbers now agree.
+
+The penalty is strongly
 non-linear in Θ, which is why an error in the closure matters more at high current density — the
 behaviour E04 reports when it finds coverage the strongest-effect closure it tested.
 

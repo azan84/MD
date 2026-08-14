@@ -1,0 +1,126 @@
+LAMMPS (22 Jul 2025 - Update 5)
+  using 1 OpenMP thread(s) per MPI task
+Lattice spacing in x,y,z = 3.524 3.524 3.524
+Created orthogonal box = (0 0 0) to (28.192 28.192 101.144)
+  4 by 2 by 1 MPI processor grid
+Lattice spacing in x,y,z = 4.9836886 5.7546679 6.103747
+Created 884 atoms
+  using lattice units in orthogonal box = (0 0 0) to (28.192 28.192 101.144)
+  create_atoms CPU = 0.011 seconds
+Created 770 atoms
+  using lattice units in orthogonal box = (0 0 0) to (28.192 28.192 101.144)
+  create_atoms CPU = 0.004 seconds
+Read molecule template h2o:
+# SPC/E water molecule template
+  1 molecules
+  0 fragments
+  0 bodies
+  3 atoms with max type 2
+  2 bonds with max type 1
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+Lattice spacing in x,y,z = 3.5 3.5 3.5
+Created 2352 atoms
+  using lattice units in orthogonal box = (0 0 0) to (28.192 28.192 101.144)
+  create_atoms CPU = 0.004 seconds
+2352 atoms in group watr
+884 atoms in group bot
+770 atoms in group top
+1654 atoms in group elec
+Setting atom values ...
+  1654 settings made for charge
+Finding SHAKE clusters ...
+       0 = # of size 2 clusters
+       0 = # of size 3 clusters
+       0 = # of size 4 clusters
+     784 = # of frozen angles
+  find clusters CPU = 0.004 seconds
+1654 atoms in group conp_group
+RUNMODE: CONSTANT POTENTIAL (fix electrode/conp)
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+- kspace_style pppm/electrode command:
+- fix electrode command:
+The log file lists these citations in BibTeX format.
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+PPPM/electrode initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.25325225
+  grid = 15 15 90
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.022918289
+  estimated relative force accuracy = 6.9017746e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 12880 2880
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+WARNING: Neighbor exclusions used with KSpace solver may give inconsistent Coulombic energies (src/lammps/src/neighbor.cpp:671)
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 12
+  ghost atom cutoff = 12
+  binsize = 6, bins = 5 5 17
+  2 neighbor lists, perpetual/occasional/extra = 2 0 0
+  (1) pair lj/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d
+      bin: standard
+  (2) fix electrode/conp, perpetual, copy from (1)
+      attributes: half, newton on
+      pair build: copy
+      stencil: none
+      bin: none
+Setting up Verlet run ...
+  Unit style    : real
+  Current step  : 0
+  Time step     : 1
+Per MPI rank memory allocation (min/avg/max) = 30.59 | 30.6 | 30.62 Mbytes
+   Step          Temp          PotEng         KinEng         TotEng         Press     
+         0   162.00279     -615.89939      1555.4195      939.52008      2278         
+        20   339.78897     -2829.364       3262.3782      433.01421     -1701.9929    
+        40   342.02215     -3007.6418      3283.8193      276.17759     -1743.8303    
+        60   346.75877     -3228.9073      3329.2965      100.38921     -1425.288     
+        80   340.19067     -3385.777       3266.235      -119.54199     -944.27991    
+       100   321.88033     -3443.5925      3090.4339     -353.15854     -340.15867    
+       120   328.89437     -3757.4373      3157.777      -599.66025     -315.11418    
+       140   319.84616     -3914.7236      3070.9035     -843.82009     -303.7286     
+       160   304.0676      -4001.3848      2919.4105     -1081.9743     -172.78213    
+       180   299.98502     -4208.3141      2880.2129     -1328.1012     -204.0312     
+       200   296.20694     -4407.4768      2843.9388     -1563.5379     -263.15287    
+Loop time of 3.17101 on 8 procs for 200 steps with 4006 atoms
+
+Performance: 5.449 ns/day, 4.404 hours/ns, 63.071 timesteps/s, 252.664 katom-step/s
+90.8% CPU use with 8 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.24906    | 0.34356    | 0.41615    |  10.0 | 10.83
+Bond    | 0.00045103 | 0.00078371 | 0.0013382  |   0.0 |  0.02
+Kspace  | 0.87207    | 0.94142    | 1.0363     |   5.9 | 29.69
+Neigh   | 0.12858    | 0.13009    | 0.13165    |   0.4 |  4.10
+Comm    | 0.17368    | 0.18027    | 0.185      |   1.0 |  5.68
+Output  | 0.00089443 | 0.0011412  | 0.0025121  |   1.5 |  0.04
+Modify  | 1.5519     | 1.5544     | 1.5569     |   0.1 | 49.02
+Other   |            | 0.01935    |            |       |  0.61
+
+Nlocal:         500.75 ave         560 max         449 min
+Histogram: 1 2 1 0 0 1 1 0 0 2
+Nghost:        5738.88 ave        5856 max        5648 min
+Histogram: 2 1 1 0 0 1 1 0 1 1
+Neighs:        64588.2 ave       82267 max       46078 min
+Histogram: 1 2 0 1 0 0 1 0 1 2
+
+Total # of neighbors = 516706
+Ave neighs/atom = 128.98303
+Ave special neighs/atom = 1.1742386
+Neighbor list builds = 17
+Dangerous builds = 0
+ATOMS_TOTAL: 4006  WATER: 2352  ELECTRODE: 1654
+Total wall time: 0:00:12

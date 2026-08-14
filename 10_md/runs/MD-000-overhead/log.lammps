@@ -1,0 +1,246 @@
+LAMMPS (22 Jul 2025 - Update 5)
+  using 1 OpenMP thread(s) per MPI task
+# ============================================================================
+# MD-000-overhead : measure fix electrode/conp cost vs plain pppm (OI-1)
+# Ni(111) | SPC/E water | Ni(111) parallel-slab cell
+# Run twice: -var useconp 0  (baseline)  and  -var useconp 1  (constant potential)
+# ============================================================================
+variable        useconp index 0
+units           real
+atom_style      full
+boundary        p p f
+processors      * * 1
+
+# ---- geometry (Angstrom) -----------------------------------------------------
+variable        a       equal 3.524          # Ni fcc lattice constant
+variable        lx      equal 8*${a}
+variable        lx      equal 8*3.524
+variable        ly      equal 8*${a}
+variable        ly      equal 8*3.524
+variable        zel     equal 3*${a}         # electrode slab thickness
+variable        zel     equal 3*3.524         
+variable        zwat    equal 60.0           # water gap
+variable        ztot    equal 2*${zel}+${zwat}+20.0
+variable        ztot    equal 2*10.572+${zwat}+20.0
+variable        ztot    equal 2*10.572+60+20.0
+
+lattice         fcc ${a}
+lattice         fcc 3.524
+Lattice spacing in x,y,z = 3.524 3.524 3.524
+region          box block 0 ${lx} 0 ${ly} 0 ${ztot} units box
+region          box block 0 28.192 0 ${ly} 0 ${ztot} units box
+region          box block 0 28.192 0 28.192 0 ${ztot} units box
+region          box block 0 28.192 0 28.192 0 101.144 units box
+create_box      4 box                 bond/types 1 angle/types 1                 extra/bond/per/atom 2 extra/angle/per/atom 1 extra/special/per/atom 2
+Created orthogonal box = (0 0 0) to (28.192 28.192 101.144)
+  4 by 4 by 1 MPI processor grid
+
+# types: 1=Ow 2=Hw 3=Ni_bot(cathode) 4=Ni_top(anode)
+mass            1 15.9994
+mass            2 1.00794
+mass            3 58.6934
+mass            4 58.6934
+
+region          rbot block INF INF INF INF 0.0 ${zel} units box
+region          rbot block INF INF INF INF 0.0 10.572 units box
+region          rtop block INF INF INF INF $(v_zel+v_zwat) $(2*v_zel+v_zwat) units box
+region          rtop block INF INF INF INF 70.572000000000002728 $(2*v_zel+v_zwat) units box
+region          rtop block INF INF INF INF 70.572000000000002728 81.144000000000005457 units box
+lattice         fcc ${a} orient x 1 -1 0 orient y 1 1 -2 orient z 1 1 1
+lattice         fcc 3.524 orient x 1 -1 0 orient y 1 1 -2 orient z 1 1 1
+Lattice spacing in x,y,z = 4.9836886 5.7546679 6.103747
+create_atoms    3 region rbot
+Created 884 atoms
+  using lattice units in orthogonal box = (0 0 0) to (28.192 28.192 101.144)
+  create_atoms CPU = 0.010 seconds
+create_atoms    4 region rtop
+Created 770 atoms
+  using lattice units in orthogonal box = (0 0 0) to (28.192 28.192 101.144)
+  create_atoms CPU = 0.004 seconds
+
+# ---- water ------------------------------------------------------------------
+region          rwat block 2.0 $(v_lx-2.0) 2.0 $(v_ly-2.0) $(v_zel+3.0) $(v_zel+v_zwat-3.0) units box
+region          rwat block 2.0 26.192000000000000171 2.0 $(v_ly-2.0) $(v_zel+3.0) $(v_zel+v_zwat-3.0) units box
+region          rwat block 2.0 26.192000000000000171 2.0 26.192000000000000171 $(v_zel+3.0) $(v_zel+v_zwat-3.0) units box
+region          rwat block 2.0 26.192000000000000171 2.0 26.192000000000000171 13.571999999999999176 $(v_zel+v_zwat-3.0) units box
+region          rwat block 2.0 26.192000000000000171 2.0 26.192000000000000171 13.571999999999999176 67.572000000000002728 units box
+molecule        h2o ${spce}
+molecule        h2o spce.mol
+Read molecule template h2o:
+# SPC/E water molecule template
+  1 molecules
+  0 fragments
+  0 bodies
+  3 atoms with max type 2
+  2 bonds with max type 1
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+lattice         sc 3.5
+Lattice spacing in x,y,z = 3.5 3.5 3.5
+create_atoms    0 region rwat mol h2o 48577
+Created 2352 atoms
+  using lattice units in orthogonal box = (0 0 0) to (28.192 28.192 101.144)
+  create_atoms CPU = 0.006 seconds
+
+# ---- interactions ------------------------------------------------------------
+pair_style      lj/cut/coul/long 10.0 10.0
+pair_coeff      1 1 0.1553   3.166      # SPC/E O-O
+pair_coeff      2 2 0.0      0.0
+pair_coeff      1 2 0.0      0.0
+pair_coeff      3 3 0.2075   2.4834     # Ni (Heinz UFF-derived)
+pair_coeff      4 4 0.2075   2.4834
+pair_coeff      1 3 0.1795   2.8247     # Ni-Ow (Lorentz-Berthelot)
+pair_coeff      1 4 0.1795   2.8247
+pair_coeff      2 3 0.0      0.0
+pair_coeff      2 4 0.0      0.0
+pair_coeff      3 4 0.2075   2.4834
+
+bond_style      harmonic
+bond_coeff      1 1000.0 1.0
+angle_style     harmonic
+angle_coeff     1 100.0 109.47
+
+group           watr  type 1 2
+2352 atoms in group watr
+group           bot   type 3
+884 atoms in group bot
+group           top   type 4
+770 atoms in group top
+group           elec  union bot top
+1654 atoms in group elec
+set             group elec charge 0.0
+Setting atom values ...
+  1654 settings made for charge
+
+if "${useconp} == 1" then   "kspace_style pppm/electrode 1.0e-4" else   "kspace_style pppm 1.0e-4"
+kspace_style pppm/electrode 1.0e-4
+kspace_modify   slab 3.0
+
+neighbor        2.0 bin
+neigh_modify    delay 0 every 1 check yes exclude group elec elec
+
+fix             shk watr shake 1.0e-4 100 0 b 1 a 1
+Finding SHAKE clusters ...
+       0 = # of size 2 clusters
+       0 = # of size 3 clusters
+       0 = # of size 4 clusters
+     784 = # of frozen angles
+  find clusters CPU = 0.004 seconds
+velocity        watr create 333.0 48291 mom yes rot yes dist gaussian
+fix             nvt watr nvt temp 333.0 333.0 100.0
+fix             frz elec setforce 0.0 0.0 0.0
+
+# ---- the measurement ---------------------------------------------------------
+if "${useconp} == 1" then   "fix conp bot electrode/conp -1.0 1.805 couple top 1.0 symm on"   "print 'RUNMODE: CONSTANT POTENTIAL (fix electrode/conp)'" else   "print 'RUNMODE: BASELINE (no electrode solve)'"
+fix conp bot electrode/conp -1.0 1.805 couple top 1.0 symm on
+1654 atoms in group conp_group
+print 'RUNMODE: CONSTANT POTENTIAL (fix electrode/conp)'
+RUNMODE: CONSTANT POTENTIAL (fix electrode/conp)
+
+timestep        1.0
+thermo          20
+thermo_style    custom step temp pe ke etotal press
+run             200
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+
+- kspace_style pppm/electrode command:
+
+@article{Ahrens2021,
+author = {Ahrens-Iwers, Ludwig J.V. and Mei{\ss}ner, Robert H.},
+doi = {10.1063/5.0063381},
+title = {{Constant potential simulations on a mesh}},
+journal = {Journal of Chemical Physics},
+year = {2021}
+volume = {155},
+pages = {104104},
+}
+- fix electrode command:
+
+@article{Ahrens2022
+author = {Ahrens-Iwers, Ludwig J.V. and Janssen, Mahijs and Tee, Shern R. and Mei{\ss}ner, Robert H.},
+doi = {10.1063/5.0099239},
+title = {{ELECTRODE: An electrochemistry package for LAMMPS}},
+journal = {The Journal of Chemical Physics},
+year = {2022}
+volume = {157},
+pages = {084801},
+}
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+PPPM/electrode initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.25325225
+  grid = 15 15 90
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.022918289
+  estimated relative force accuracy = 6.9017746e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 9200 1440
+Generated 0 of 6 mixed pair_coeff terms from geometric mixing rule
+WARNING: Neighbor exclusions used with KSpace solver may give inconsistent Coulombic energies (src/lammps/src/neighbor.cpp:671)
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 12
+  ghost atom cutoff = 12
+  binsize = 6, bins = 5 5 17
+  2 neighbor lists, perpetual/occasional/extra = 2 0 0
+  (1) pair lj/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d
+      bin: standard
+  (2) fix electrode/conp, perpetual, copy from (1)
+      attributes: half, newton on
+      pair build: copy
+      stencil: none
+      bin: none
+Per MPI rank memory allocation (min/avg/max) = 30.17 | 30.19 | 30.22 Mbytes
+   Step          Temp          PotEng         KinEng         TotEng         Press     
+         0   162.00279     -647.75226      1555.4195      907.66722      2476.6823    
+        20   331.35506     -2800.1674      3181.4026      381.23514     -1679.9649    
+        40   341.53198     -3057.2973      3279.1131      221.81577     -1842.8549    
+        60   332.45727     -3137.0775      3191.9851      54.907565     -1469.5501    
+        80   329.41757     -3312.633       3162.8004     -149.83261     -987.02304    
+       100   328.51365     -3536.7529      3154.1217     -382.6312      -593.26799    
+       120   319.43713     -3685.5895      3066.9764     -618.6131      -279.77518    
+       140   315.57249     -3882.4234      3029.8712     -852.5522      -158.79542    
+       160   310.41015     -4073.3974      2980.3066     -1093.0908     -152.36447    
+       180   298.03483     -4187.1112      2861.4887     -1325.6225      6.5614886    
+       200   290.32477     -4341.8726      2787.4631     -1554.4096      18.239653    
+Loop time of 3.32174 on 16 procs for 200 steps with 4006 atoms
+
+Performance: 5.202 ns/day, 4.614 hours/ns, 60.209 timesteps/s, 241.199 katom-step/s
+91.9% CPU use with 16 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.14068    | 0.2084     | 0.31402    |  10.9 |  6.27
+Bond    | 0.00046936 | 0.00057345 | 0.00071861 |   0.0 |  0.02
+Kspace  | 0.92403    | 1.0285     | 1.096      |   4.9 | 30.96
+Neigh   | 0.079312   | 0.082454   | 0.08436    |   0.7 |  2.48
+Comm    | 0.26669    | 0.27236    | 0.28088    |   0.7 |  8.20
+Output  | 0.00087994 | 0.0010881  | 0.0032521  |   1.7 |  0.03
+Modify  | 1.6829     | 1.694      | 1.7037     |   0.4 | 51.00
+Other   |            | 0.03438    |            |       |  1.04
+
+Nlocal:        250.375 ave         310 max         200 min
+Histogram: 4 1 1 1 1 4 0 1 1 2
+Nghost:        4769.44 ave        4882 max        4667 min
+Histogram: 2 0 3 2 1 2 3 1 0 2
+Neighs:        32342.3 ave       51971 max       17730 min
+Histogram: 4 0 2 2 2 2 0 1 1 2
+
+Total # of neighbors = 517477
+Ave neighs/atom = 129.17549
+Ave special neighs/atom = 1.1742386
+Neighbor list builds = 17
+Dangerous builds = 0
+print           "ATOMS_TOTAL: $(count(all))  WATER: $(count(watr))  ELECTRODE: $(count(elec))"
+ATOMS_TOTAL: 4006  WATER: 2352  ELECTRODE: 1654
+Total wall time: 0:00:08

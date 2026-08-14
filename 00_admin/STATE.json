@@ -3,14 +3,14 @@
  "corpus_hash": "9dd4b795a80ec687",
  "source_report": "/home/azan/electrode/gap_discovery_report.md",
  "proj_root": "/home/azan/research/T12_MD_wettability_closure",
- "phase": "1 complete, 2 starting",
+ "phase": "2 complete (post-Audit-1 revision)",
  "stage": "S-A",
- "last_completed_step": "Phase 1: problem statement, prior-art delta, design spec, parameter matrix (98 cases, 96 active)",
+ "last_completed_step": "Phase 2 theory + Audit 1 reconciliation: 16 findings, all verified, all accepted, 0 rejected. Blocking fixes applied.",
  "active_runs": [],
  "pending_audits": [
-  "AUDIT-1 dispatched to codex + agy"
+  "AUDIT-1 agy re-issue pending OA-1 authentication"
  ],
- "next_action": "Phase 2: write 03_theory/governing_equations.md, coupling_contract.md, nondimensional.md while Audit 1 runs",
+ "next_action": "Phase 3 S-A: build production Ni|KOH MD system (20-30k atoms, 8/12/16 nm box convergence), bulk KOH force-field validation, then concurrent theta(dPsi) campaign",
  "hard_constraints": {
   "disk_free_gb_at_phase0": 61,
   "disk_stop_threshold_gb": 40,
@@ -39,11 +39,20 @@
   ]
  },
  "budget": {
-  "active_cases": 96,
-  "deferred": 2,
-  "total_hours": 1742,
-  "critical_path_hours": 1230,
-  "critical_path_days": 51.2,
-  "note": "3D confirmation trimmed 3->1 (D1.3), saving ~1008 h"
+  "wall_clock_days": 75,
+  "with_contingency_days": 97,
+  "weeks": 13.9,
+  "md_concurrent_days": 19.6,
+  "vof_days": 52.9,
+  "cell_days": 2.3,
+  "note": "Recosted after Audit 1 with physics-based end times and j-scaled meshes"
+ },
+ "audit1": {
+  "auditor": "codex only (agy unauthenticated, OA-1)",
+  "verdict": "major revision / no-go for original matrix",
+  "findings": 16,
+  "accepted": 16,
+  "rejected": 0,
+  "degraded": true
  }
 }
