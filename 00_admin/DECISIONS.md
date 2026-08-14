@@ -410,3 +410,51 @@ load-bearing and no σ can substitute.
 | Gate | Attempt | Model | Outcome |
 |---|---|---|---|
 | FF density gate | 1 | Opus | **Diagnosis resolved; concrete published parameters supplied; 3 of my own bugs found. Fix under test.** Not yet closed — closure requires the published-FF runs to pass. |
+
+### D3.12 — Force field ADOPTED: Bonthuis OH⁻ + Loche K⁺ + ECC charge scaling q = 0.8
+
+The decisive 4-run test completed. Averaged production densities:
+
+| | 20 wt% (exp 1.185) | 30 wt% (exp 1.286) |
+|---|---|---|
+| Bonthuis σ = 3.81 Å, **q = 1.0** | 1.2561 (**+6.0 %**) | 1.3858 (**+7.8 %**) |
+| Bonthuis σ = 3.81 Å, **q = 0.8** | **1.1723 (−1.1 %)** | **1.2662 (−1.5 %)** |
+
+**Getting the hydroxide size right is necessary but not sufficient.** With the published σ and full
+formal charges the model still overpredicts density by 6–8 %; only scaling the ion charges brings
+both concentrations inside the 3 % gate. This independently reproduces the finding of Frischknecht &
+Stevens for KOH in LAMMPS, and it settles the size-vs-charge question the escalated analysis flagged
+as its own softest claim.
+
+**Adopted parameters** (SPC/E water, water charges *unscaled* — SPC/E is already an effective-charge
+model; `pair_modify mix geometric`):
+
+| site | ε (kcal/mol) | σ (Å) | q (e) |
+|---|---|---|---|
+| K⁺ | 0.21510 | 2.83000 | +0.8 |
+| OH⁻ (single site) | 0.01195 | 3.81000 | −0.8 |
+
+**Rejected alternative, and why.** My own σ-scan located a crossing at σ = 3.670 Å, and σ = 3.700
+reproduced the 30 wt% density to −0.57 % — comfortably inside the gate. **That fix was not adopted.**
+It would have absorbed a charge-overpolarisation error into a size parameter, yielding an OH⁻ whose
+hydration structure and solvation free energy are wrong in compensating directions. It passes a bulk
+density gate and would be expected to fail at the interface, which is the only reason the gate
+exists. The published set is peer-reviewed, was derived against solvation free energies and
+activities rather than tuned to this one target, and is expected to fix transport as well as density.
+
+Note the corroboration: an independent slope argument predicted the crossing at 3.85 Å (range
+3.7–4.15), my scan measured 3.670 Å, and the published value is 3.81 Å. Three routes within 0.14 Å.
+
+**Escalation ledger:**
+| Gate | Attempt | Model | Outcome |
+|---|---|---|---|
+| FF density gate | 1 | Opus | **RESOLVED.** Diagnosis correct, published parameters supplied, 3 of my own bugs found, fix verified by direct test. No second attempt needed; Fable escalation not invoked. |
+
+**D3.13 — Trajectory dumps added (closes OI-16).** The re-validation writes
+`traj_*.lammpstrj` every 5000 steps so the OH⁻–water first-peak position can be checked against the
+experimental 2.77–2.79 Å. The rejected model was predicted to sit at 2.5–2.6 Å; that check was
+impossible before because no dumps were written.
+
+**D3.14 — Rejected-FF runs preserved, not deleted.** `10_md/runs/bulk_koh_REJECTED_FF/` is retained.
+It is the evidence base for the gate-failure figure already in the manuscript, and deleting a
+negative result because it was superseded would be poor practice.

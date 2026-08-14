@@ -1,3 +1,7 @@
 # Time-averaged data for fix davg
 # TimeStep v_dens
 10000 1.14939
+20000 1.14642
+30000 1.14927
+40000 1.14874
+50000 1.14881

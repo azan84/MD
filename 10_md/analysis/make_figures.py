@@ -94,7 +94,7 @@ def fig3_sigma_scan():
     files = sorted(glob.glob(os.path.join(d, "dens_sig*.dat")))
     pts = []
     for f in files:
-        m = re.search(r"dens_sig([\d.]+)_eps([\d.]+)\.dat", os.path.basename(f))
+        m = re.search(r"sig([\d.]+)_eps([\d.]+)\.dat$", os.path.basename(f))
         if not m: continue
         try:
             a = np.loadtxt(f, comments="#")
@@ -116,13 +116,15 @@ def fig3_sigma_scan():
     for p in hal:
         ax.scatter([p[0]], [p[2]], marker="D", color="#7d3c98", zorder=4,
                    label=f"halide-like ($\\varepsilon$={p[1]})")
-    ax.axhline(1.290, color=C_EXP, ls="--", lw=1.0)
-    ax.axhspan(1.290*0.97, 1.290*1.03, color=C_OK, alpha=0.15, zorder=0)
+    ax.axhline(1.286, color=C_EXP, ls="--", lw=1.0)
+    ax.axhspan(1.286*0.97, 1.286*1.03, color=C_OK, alpha=0.15, zorder=0)
     ax.text(ax.get_xlim()[1], 1.298, "experiment $\\pm$3%", ha="right", fontsize=7.5, color=C_EXP)
     ax.scatter([3.166], [1.4081], marker="X", s=60, color=C_BAD, zorder=5)
     ax.annotate("rejected model\n(SPC/E O size)", (3.166, 1.4081), textcoords="offset points",
                 xytext=(12, -2), fontsize=7.5, color=C_BAD)
-    ax.set_xlabel(r"OH$^-$ Lennard-Jones $\sigma$  (\AA)")
+    ax.axvline(3.81, color="#7d3c98", ls=":", lw=1.0)
+    ax.text(3.83, 1.36, "Bonthuis\n(published)", fontsize=7, color="#7d3c98")
+    ax.set_xlabel(r"OH$^-$ Lennard-Jones $\sigma$  ($\AA$)")
     ax.set_ylabel(r"density $\rho$  (g cm$^{-3}$)")
     ax.set_title("hydroxide size re-tuning, 30 wt%, 298 K")
     ax.legend(frameon=False, fontsize=7.5)

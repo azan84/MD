@@ -12,7 +12,6 @@ variable        data   index data.koh30_s1
 variable        T      index 298.0
 variable        tag    index koh30_s1_298
 variable        Pbar   index 1.0
-variable        qion   index 0.8    # ECC ion charge scaling (ADOPTED, D3.12)
 
 units           real
 atom_style      full
@@ -23,19 +22,11 @@ read_data       ${data}
 # ---- force field -----------------------------------------------------------
 # 1=Ow 2=Hw 3=K+ 4=OH-(single site)
 pair_style      lj/cut/coul/long 10.0 10.0
-pair_modify     mix geometric tail yes   # Bonthuis OH- parameterised with geometric mixing
+pair_modify     mix arithmetic tail yes
 pair_coeff      1 1 0.15530 3.16600     # SPC/E oxygen
 pair_coeff      2 2 0.00000 0.00000     # SPC/E hydrogen (no LJ)
-# ADOPTED FORCE FIELD (D3.12) - replaces the model rejected by this gate.
-pair_coeff      3 3 0.21510 2.83000     # K+  Loche et al., SPC/E-optimised
-pair_coeff      4 4 0.01195 3.81000     # OH- Bonthuis/Mamatkulov/Netz 2016, SPC/E
-                                        # eps is 13x SMALLER and sigma 0.64 A LARGER than
-                                        # the rejected SPC/E-oxygen copy.
-
-# ECC ion charge scaling. Water charges are NOT scaled - SPC/E is already an
-# effective-charge model. Measured: q=1.0 fails (+6.0/+7.8%), q=0.8 passes (-1.1/-1.5%).
-set             type 3 charge  ${qion}
-set             type 4 charge -${qion}
+pair_coeff      3 3 0.10270 2.83840     # K+  Joung-Cheatham (SPC/E-optimised)
+pair_coeff      4 4 0.15530 3.16600     # OH- single site, LJ = SPC/E oxygen  [OI-14]
 
 bond_style      harmonic
 bond_coeff      1 1000.0 1.0            # rigid via SHAKE; k only for initialisation
@@ -107,11 +98,6 @@ variable        pxy equal pxy
 variable        pxz equal pxz
 variable        pyz equal pyz
 fix             pt all ave/time 1 1 1 v_pxy v_pxz v_pyz file press_${tag}.dat
-
-# trajectory for radial distribution functions (OI-16: previously no dumps were
-# written, so the OH--water first-peak position could not be checked)
-dump            trj all custom 5000 traj_${tag}.lammpstrj id type x y z
-dump_modify     trj sort id
 
 thermo          5000
 run             200000                      # 200 ps production
