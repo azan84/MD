@@ -1,0 +1,88 @@
+# ============================================================================
+# MD-1xx : bulk KOH(aq) force-field validation  --  THE GATE
+# Both Audit-1 auditors required the force field reproduce bulk KOH properties
+# before any interface or contact-angle run. If this fails, the FF is replaced.
+#
+# Measures: density (NPT), self-diffusivities (Einstein MSD), and the inputs for
+#           a Green-Kubo viscosity. Compared against experiment in analysis/.
+#
+# Usage: lmp -in in.bulk_koh -var data <file> -var T <K> -var tag <name>
+# ============================================================================
+variable        data   index data.koh30_s1
+variable        T      index 298.0
+variable        tag    index koh30_s1_298
+variable        Pbar   index 1.0
+variable        sigOH  index 3.16600
+variable        epsOH  index 0.15530
+
+units           real
+atom_style      full
+boundary        p p p
+
+read_data       ${data}
+
+# ---- force field -----------------------------------------------------------
+# 1=Ow 2=Hw 3=K+ 4=OH-(single site)
+pair_style      lj/cut/coul/long 10.0 10.0
+pair_modify     mix arithmetic tail yes
+pair_coeff      1 1 0.15530 3.16600     # SPC/E oxygen
+pair_coeff      2 2 0.00000 0.00000     # SPC/E hydrogen (no LJ)
+pair_coeff      3 3 0.10270 2.83840     # K+  Joung-Cheatham (SPC/E-optimised)
+pair_coeff      4 4 ${epsOH} ${sigOH}     # OH- single site - SCANNED (gate re-tune)
+
+bond_style      harmonic
+bond_coeff      1 1000.0 1.0            # rigid via SHAKE; k only for initialisation
+angle_style     harmonic
+angle_coeff     1 100.0 109.47
+
+kspace_style    pppm 1.0e-5
+
+group           watr  type 1 2
+group           kion  type 3
+group           ohion type 4
+group           ions  type 3 4
+
+neighbor        2.0 bin
+neigh_modify    delay 0 every 1 check yes
+
+fix             shk watr shake 1.0e-5 200 0 b 1 a 1
+
+# ---- 0. push apart the lattice start ---------------------------------------
+# NOTE: deliberately NO `minimize`. LAMMPS warns "Using fix shake with minimization"
+# because shake is IGNORED during minimisation, and CG on a lattice start with PPPM
+# is slow and ill-conditioned (measured: 21 iterations in ~2 min). A displacement-
+# capped NVE push with a strong thermostat relaxes close contacts robustly instead.
+thermo          500
+thermo_style    custom step temp press density pe vol
+velocity        all create ${T} 90210 mom yes rot yes dist gaussian
+timestep        0.2
+fix             lang0 all langevin ${T} ${T} 50.0 48279
+fix             nvel  all nve/limit 0.05
+run             20000                       # 4 ps, displacement-capped
+unfix           nvel
+unfix           lang0
+
+# ---- 1a. free Langevin warm-up ---------------------------------------------
+timestep        0.5
+fix             lang all langevin ${T} ${T} 100.0 91733
+fix             nve0 all nve
+run             20000                       # 10 ps
+unfix           lang
+unfix           nve0
+
+# ---- 1b. equilibrate at target T,P -----------------------------------------
+timestep        1.0
+fix             nptrun all npt temp ${T} ${T} 100.0 iso ${Pbar} ${Pbar} 1000.0
+run             30000                       # 30 ps equilibration
+
+# ---- 2. density production (NPT) -------------------------------------------
+reset_timestep  0
+variable        dens equal density
+fix             davg all ave/time 10 1000 10000 v_dens file dens_${tag}.dat
+run             50000                       # 50 ps production
+variable        rho_mean equal f_davg
+print           "RESULT density_g_cm3 ${rho_mean}"
+unfix           davg
+unfix           nptrun
+
+print "DONE ${tag}"

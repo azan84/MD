@@ -308,3 +308,27 @@ re-tune against density — and the θ campaign does not launch until it passes.
 Operator instruction was "keep 4 cores free, use the rest". Their own two jobs hold 16 ranks; mine
 take 12; total 28 of 32 logical cores, leaving exactly 4. My jobs run at `nice -n 5` so the
 operator's work retains priority under contention.
+
+**D3.5 — Force field REJECTED by its own gate; re-tuning rather than excusing.**
+The pre-registered density criterion (3%) failed by 6.3–9.2% at every state point, with replica
+scatter 20–60× smaller than the discrepancy. This is exactly the outcome the gate was built to
+catch, and it caught it *before* 12 concurrent contact-angle runs were committed to a model that
+would have produced a confidently wrong wettability.
+
+**Diagnosis, not just detection.** The error scales with ion concentration (6.5% → 9.2% from 20 to
+30 wt%), and D(H₂O) is suppressed ~7× versus neat water where experiment suggests far less. Both
+point to over-compact, over-bound ions rather than a water-model problem. The ad-hoc element of the
+force field is the hydroxide: a single LJ site carrying −1 with SPC/E *oxygen* size. Real OH⁻ has a
+larger effective radius; a bare oxygen-sized unit anion over-attracts its solvation shell.
+
+**Fix under test:** a σ-scan on OH⁻ at the worst state point, spanning oxygen-like to halide-like
+size. Re-tuning an ion's LJ diameter to reproduce solution density is a standard and defensible
+parametrisation route, and will be reported as such — the manuscript will state that the hydroxide
+LJ diameter was tuned against KOH(aq) density rather than implying it was taken from a source.
+
+**If the scan cannot reach 3% at both concentrations simultaneously**, the single-site
+representation is inadequate and a two-site OH⁻ (explicit O–H with partial charges) is adopted
+instead. That is a larger change and would be logged as such.
+
+**Note on what did NOT happen:** no attempt was made to widen the gate to accommodate the result.
+The criterion was fixed before the data existed and is being held to.

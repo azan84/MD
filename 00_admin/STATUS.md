@@ -40,3 +40,20 @@ Running log. One line per action. Newest at the bottom of each phase block.
 - 2026-08-14 · Wrote `build_interface.py`; built Ni(111)|KOH|Ni(111) systems for box convergence: **Lx = 8/12/16 nm → 19k/30k/41k atoms** (12 nm = 30k hits the revised size target), plus an EDL system with no bubble.
 - 2026-08-14 · **A1.4 failure mode made structurally impossible:** the builder refuses a bubble whose diameter exceeds 80% of Lx. Tested — a 5 nm bubble in an 8 nm box is rejected by name. The original spec's 3–8 nm caps in a 2.82 nm box cannot recur.
 - 2026-08-14 · **LAUNCHED 12-case validation campaign** (2 wt% × 3 seeds × 2 T) as concurrent single-rank jobs at `nice -n 5`. Core budget honoured: 12 mine + 16 operator's = 28 of 32 logical, **4 free** as instructed. ETA ~7–8 h under shared load.
+
+## Phase 3 — FORCE-FIELD GATE FIRED: **FAIL**
+
+- 2026-08-14 · 12-case campaign completed equilibration (85k–200k steps). `validate_bulk.py` verdict: **OVERALL DENSITY GATE FAIL** at all four state points.
+
+| System | ρ sim (3 seeds) | ρ exp | error |
+|---|---|---|---|
+| 20 wt%, 298 K | 1.2672 ± 0.0020 | 1.188 | **+6.67%** |
+| 20 wt%, 333 K | 1.2367 ± 0.0021 | 1.163 | **+6.33%** |
+| 30 wt%, 298 K | 1.4081 ± 0.0048 | 1.290 | **+9.16%** |
+| 30 wt%, 333 K | 1.3817 ± 0.0008 | 1.265 | **+9.23%** |
+
+- 2026-08-14 · **The failure is systematic, not statistical** — replica scatter is ±0.002–0.005 g/cm³ against a 0.08–0.12 g/cm³ discrepancy, i.e. the error is 20–60× the seed-to-seed spread.
+- 2026-08-14 · **The failure is diagnostic**: error grows with KOH content (6.5% at 20 wt% → 9.2% at 30 wt%), so it scales with ion concentration and implicates the **ion parameters, not the water model**. Corroborated by transport: D(H₂O) at 30 wt%/298 K = 3.28e-10 m²/s, ~7× below neat water — far more suppression than real KOH shows. The electrolyte is over-dense and over-structured.
+- 2026-08-14 · **Prime suspect identified**: OH⁻ was modelled as a single LJ site with SPC/E-*oxygen* parameters (σ = 3.166 Å) carrying full −1 charge. A bare oxygen-sized anion at unit charge produces excessive electrostriction. K⁺ (Joung–Cheatham) is well established and is not the first suspect.
+- 2026-08-14 · **The θ campaign is NOT launched** — the gate exists precisely to stop this, and it stopped it.
+- 2026-08-14 · Launched a 5-point OH⁻ σ-scan at the worst state point (30 wt%, 298 K): σ ∈ {3.4, 3.7, 4.0, 4.3} Å at fixed ε, plus one halide-like point (σ = 4.83 Å, ε = 0.0128 kcal/mol). 12 jobs total, exactly at the allocated budget.
