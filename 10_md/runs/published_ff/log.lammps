@@ -1,0 +1,106 @@
+LAMMPS (22 Jul 2025 - Update 5)
+  using 1 OpenMP thread(s) per MPI task
+# ============================================================================
+# MD-1xx : bulk KOH(aq) force-field validation  --  THE GATE
+# Both Audit-1 auditors required the force field reproduce bulk KOH properties
+# before any interface or contact-angle run. If this fails, the FF is replaced.
+#
+# Measures: density (NPT), self-diffusivities (Einstein MSD), and the inputs for
+#           a Green-Kubo viscosity. Compared against experiment in analysis/.
+#
+# Usage: lmp -in in.bulk_koh -var data <file> -var T <K> -var tag <name>
+# ============================================================================
+variable        data   index data.koh30_s1
+variable        T      index 298.0
+variable        tag    index koh30_s1_298
+variable        Pbar   index 1.0
+variable        qion   index 1.0    # ion charge scaling (ECC); 1.0 = full, 0.8 = Frischknecht
+
+units           real
+atom_style      full
+boundary        p p p
+
+read_data       ${data}
+read_data       data.koh30_s1
+Reading data file ...
+  orthogonal box = (0 0 0) to (37.095719 37.095719 37.095719)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  4912 atoms
+  scanning bonds ...
+  2 = max bonds/atom
+  scanning angles ...
+  1 = max angles/atom
+  orthogonal box = (0 0 0) to (37.095719 37.095719 37.095719)
+  1 by 1 by 1 MPI processor grid
+  reading bonds ...
+  3000 bonds
+  reading angles ...
+  1500 angles
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0        0        0       
+  special bond factors coul:  0        0        0       
+     2 = max # of 1-2 neighbors
+     1 = max # of 1-3 neighbors
+     1 = max # of 1-4 neighbors
+     2 = max # of special neighbors
+  special bonds CPU = 0.001 seconds
+  read_data CPU = 0.028 seconds
+
+# ---- force field -----------------------------------------------------------
+# 1=Ow 2=Hw 3=K+ 4=OH-(single site)
+pair_style      lj/cut/coul/long 10.0 10.0
+pair_modify     mix geometric tail yes   # Bonthuis OH- was parameterised with geometric mixing
+pair_coeff      1 1 0.15530 3.16600     # SPC/E oxygen
+pair_coeff      2 2 0.00000 0.00000     # SPC/E hydrogen (no LJ)
+pair_coeff      3 3 0.21510 2.83000     # K+  Loche et al. (SPC/E-optimised)
+pair_coeff      4 4 0.01195 3.81000     # OH- Bonthuis/Mamatkulov/Netz 2016 (SPC/E)
+                                        # note eps is 13x SMALLER than the rejected value
+
+# ---- ECC ion charge scaling -------------------------------------------------
+set             type 3 charge  ${qion}
+set             type 3 charge  1.0
+Setting atom values ...
+  206 settings made for charge
+set             type 4 charge -${qion}
+set             type 4 charge -1.0
+Setting atom values ...
+  206 settings made for charge
+
+bond_style      harmonic
+bond_coeff      1 1000.0 1.0            # rigid via SHAKE; k only for initialisation
+angle_style     harmonic
+angle_coeff     1 100.0 109.47
+
+kspace_style    pppm 1.0e-5
+
+group           watr  type 1 2
+4500 atoms in group watr
+group           kion  type 3
+206 atoms in group kion
+group           ohion type 4
+206 atoms in group ohion
+group           ions  type 3 4
+412 atoms in group ions
+
+neighbor        2.0 bin
+neigh_modify    delay 0 every 1 check yes
+
+fix             shk watr shake 1.0e-5 200 0 b 1 a 1
+Finding SHAKE clusters ...
+       0 = # of size 2 clusters
+       0 = # of size 3 clusters
+       0 = # of size 4 clusters
+    1500 = # of frozen angles
+  find clusters CPU = 0.001 seconds
+
+# ---- 0. push apart the lattice start ---------------------------------------
+# NOTE: deliberately NO `minimize`. LAMMPS warns "Using fix shake with minimization"
+# because shake is IGNORED during minimisation, and CG on a lattice start with PPPM
+# is slow and ill-conditioned (measured: 21 iterations in ~2 min). A displacement-
+# capped NVE push with a strong thermostat relaxes close contacts robustly instead.
+thermo          500
+thermo_style    custom step temp press density pe vol
+velocity        all create ${T} 90210 mom yes rot yes dist gaussian
+velocity        all create 298.0 90210 mom yes rot yes dist gaussian
+timestep   

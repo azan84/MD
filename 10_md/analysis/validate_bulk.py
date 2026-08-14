@@ -19,18 +19,41 @@ publication; recorded in OI-14]:
   D(H2O) in pure water 298 K ~ 2.30e-9 m2/s ; falls with KOH concentration
   D(K+) infinite dilution 298 K ~ 1.96e-9 m2/s
 """
-import numpy as np, glob, os, re, json, sys
+import numpy as np, glob, os, re, json, sys, math
 
+# NOTE (D3.8): the previous entries 1.188 / 1.290 are the standard handbook values at
+# 20 degC, not 25 degC, and were mislabelled here as 298 K. Corrected to 298 K estimates.
+# Provenance to be pinned to a single traceable source (Sipos et al., JCED 45, 613 (2000)
+# for 298 K; Akerlof & Bender, JACS 63, 1085 (1941) for the T-dependence) - OI-15.
 EXP = {
-    "density": {(20, 298): 1.188, (30, 298): 1.290, (20, 333): 1.163, (30, 333): 1.265},
+    "density": {(20, 298): 1.185, (30, 298): 1.286, (20, 333): 1.166, (30, 333): 1.265},
     "D_water_neat": 2.30e-9,
     "D_K_inf": 1.96e-9,
 }
 GATE = {"density": 0.03, "D_water": 0.30, "D_K": 0.40}
+# experimental KOH viscosity (Pa s) used ONLY inside the Yeh-Hummer correction
+ETA = {(20, 298): 1.85e-3, (30, 298): 3.10e-3, (20, 333): 1.05e-3, (30, 333): 1.70e-3}
+
+
+KB = 1.380649e-23
+XI = 2.837297          # Yeh-Hummer cubic-lattice constant
+
+
+def yeh_hummer(D_pbc, T, L_m, eta_Pa_s):
+    """Finite-size correction: D_inf = D_pbc + kB*T*XI/(6*pi*eta*L).
+
+    NOTE: this was documented but NOT implemented in the first version of this
+    script, while the manuscript Methods claimed a finite-size correction was
+    applied. Implemented properly here; see DECISIONS D3.7.
+    """
+    if not (L_m and eta_Pa_s):
+        return D_pbc, 0.0
+    corr = KB * T * XI / (6 * math.pi * eta_Pa_s * L_m)
+    return D_pbc + corr, corr
 
 
 def msd_slope(path, t_lo_frac=0.3, t_hi_frac=0.9):
-    """Einstein fit over the linear window; returns D in m^2/s."""
+    """Einstein fit over the linear window; returns UNCORRECTED D in m^2/s."""
     d = np.loadtxt(path, comments="#")
     if d.ndim != 2 or len(d) < 20:
         return None, None
@@ -46,6 +69,17 @@ def msd_slope(path, t_lo_frac=0.3, t_hi_frac=0.9):
     resid = m - (A @ np.linalg.lstsq(A, m, rcond=None)[0])
     r2 = 1 - resid.var() / m.var() if m.var() > 0 else 0
     return slope / 6.0, r2           # D = slope/6 for 3D
+
+
+def box_length_m(rho_g_cm3, wt):
+    """Cubic box edge from density and the known composition of the built system."""
+    MW_W, MW_KOH, NA = 18.015, 56.106, 6.02214076e23
+    n_water = 1500.0                                   # as built by build_bulk_koh.py
+    n_koh = round(n_water * (wt/MW_KOH) / ((100.0-wt)/MW_W))
+    mass_g = (n_water*MW_W + n_koh*MW_KOH) / NA
+    if not rho_g_cm3: return None
+    vol_cm3 = mass_g / rho_g_cm3
+    return (vol_cm3 ** (1/3)) * 1e-2                   # cm -> m
 
 
 def density_mean(path):
@@ -70,8 +104,16 @@ def main(root="."):
         Dw, r2w = msd_slope(os.path.join(root, f"msd_water_{tag}.dat"))
         Dk, r2k = msd_slope(os.path.join(root, f"msd_k_{tag}.dat"))
         Do, r2o = msd_slope(os.path.join(root, f"msd_oh_{tag}.dat"))
+        # --- Yeh-Hummer finite-size correction (D3.7: previously documented but absent) ---
+        L = box_length_m(rho, wt)
+        eta = ETA.get((wt, T))
+        Dw_c, corr = yeh_hummer(Dw, T, L, eta) if Dw else (None, 0.0)
+        Dk_c, _ = yeh_hummer(Dk, T, L, eta) if Dk else (None, 0.0)
+        Do_c, _ = yeh_hummer(Do, T, L, eta) if Do else (None, 0.0)
         rows.append(dict(tag=tag, wt=wt, seed=seed, T=T, rho=rho, rho_sd=rho_sd,
-                         D_water=Dw, D_K=Dk, D_OH=Do, r2_water=r2w, r2_K=r2k, r2_OH=r2o))
+                         D_water_raw=Dw, D_water=Dw_c, D_K=Dk_c, D_OH=Do_c,
+                         yh_correction=corr, L_box_nm=(L*1e9 if L else None),
+                         r2_water=r2w, r2_K=r2k, r2_OH=r2o))
         byconc.setdefault((wt, T), []).append(rows[-1])
 
     print(f"{'tag':22s} {'rho':>7s} {'D_H2O':>10s} {'D_K':>10s} {'D_OH':>10s}")
@@ -96,8 +138,10 @@ def main(root="."):
         Dw = [g["D_water"] for g in grp if g["D_water"]]
         if Dw:
             line["D_water_sim"] = float(np.mean(Dw))
-            print(f"      D(H2O) = {np.mean(Dw):.3e} m2/s  (neat-water exp {EXP['D_water_neat']:.2e}; "
-                  f"expected LOWER in KOH)")
+            raw = [g["D_water_raw"] for g in grp if g.get("D_water_raw")]
+            yh = np.mean([g["yh_correction"] for g in grp])
+            print(f"      D(H2O) = {np.mean(Dw):.3e} m2/s  [Yeh-Hummer corrected; raw "
+                  f"{np.mean(raw):.3e}, correction +{yh:.2e} = {100*yh/np.mean(raw):.0f}%]")
         Do = [g["D_OH"] for g in grp if g["D_OH"]]
         if Do:
             line["D_OH_sim"] = float(np.mean(Do))

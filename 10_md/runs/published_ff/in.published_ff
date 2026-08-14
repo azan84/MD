@@ -12,6 +12,7 @@ variable        data   index data.koh30_s1
 variable        T      index 298.0
 variable        tag    index koh30_s1_298
 variable        Pbar   index 1.0
+variable        qion   index 1.0    # ion charge scaling (ECC); 1.0 = full, 0.8 = Frischknecht
 
 units           real
 atom_style      full
@@ -22,13 +23,16 @@ read_data       ${data}
 # ---- force field -----------------------------------------------------------
 # 1=Ow 2=Hw 3=K+ 4=OH-(single site)
 pair_style      lj/cut/coul/long 10.0 10.0
-pair_modify     mix arithmetic tail yes
+pair_modify     mix geometric tail yes   # Bonthuis OH- was parameterised with geometric mixing
 pair_coeff      1 1 0.15530 3.16600     # SPC/E oxygen
 pair_coeff      2 2 0.00000 0.00000     # SPC/E hydrogen (no LJ)
-pair_coeff      3 3 0.42970 2.83840     # K+  Joung-Cheatham (SPC/E), eps in kcal/mol
-                                        # CORRECTED: was 0.10270 = 0.4297/4.184, i.e. a
-                                        # kcal/mol value wrongly re-divided as if kJ/mol.
-pair_coeff      4 4 0.15530 3.16600     # OH- single site, LJ = SPC/E oxygen  [OI-14]
+pair_coeff      3 3 0.21510 2.83000     # K+  Loche et al. (SPC/E-optimised)
+pair_coeff      4 4 0.01195 3.81000     # OH- Bonthuis/Mamatkulov/Netz 2016 (SPC/E)
+                                        # note eps is 13x SMALLER than the rejected value
+
+# ---- ECC ion charge scaling -------------------------------------------------
+set             type 3 charge  ${qion}
+set             type 4 charge -${qion}
 
 bond_style      harmonic
 bond_coeff      1 1000.0 1.0            # rigid via SHAKE; k only for initialisation
@@ -85,22 +89,4 @@ print           "RESULT density_g_cm3 ${rho_mean}"
 unfix           davg
 unfix           nptrun
 
-# ---- 3. transport production (NVT at the equilibrated volume) ---------------
-fix             nvtrun all nvt temp ${T} ${T} 100.0
-reset_timestep  0
-compute         mw watr msd com yes
-compute         mk kion msd com yes
-compute         mo ohion msd com yes
-fix             msdw all ave/time 10 1 10 c_mw[4] file msd_water_${tag}.dat
-fix             msdk all ave/time 10 1 10 c_mk[4] file msd_k_${tag}.dat
-fix             msdo all ave/time 10 1 10 c_mo[4] file msd_oh_${tag}.dat
-
-# Green-Kubo inputs: off-diagonal pressure components
-variable        pxy equal pxy
-variable        pxz equal pxz
-variable        pyz equal pyz
-fix             pt all ave/time 1 1 1 v_pxy v_pxz v_pyz file press_${tag}.dat
-
-thermo          5000
-run             200000                      # 200 ps production
-print           "DONE ${tag}"
+print "DONE ${tag}"

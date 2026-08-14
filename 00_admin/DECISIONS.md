@@ -342,3 +342,71 @@ Escalation ledger:
 | Gate | Attempt | Model | Outcome |
 |---|---|---|---|
 | FF density gate (D3.5) | 1 | Opus | dispatched 2026-08-14 |
+
+## Phase 3 — escalated gate analysis (Opus, attempt 1 of 3) and three self-inflicted bugs it exposed
+
+The escalated analysis resolved the diagnosis and exposed **three defects in my own work**, two of
+which I verified arithmetically before accepting.
+
+### D3.7 — Yeh–Hummer correction was DOCUMENTED BUT NEVER IMPLEMENTED
+`validate_bulk.py` promised a finite-size correction in its docstring and returned `slope/6.0` with
+no correction applied. **Worse: I had already written "with a finite-size correction" into the
+manuscript Methods (§3.2), so that sentence was false at the time of writing.** Now implemented
+(`D_inf = D_pbc + k_BT·ξ/(6πηL)`, ξ = 2.837297). Measured corrections: **+10% to +17%**, largest at
+30 wt% where the box is smallest and viscosity highest.
+*This is the most serious class of error in the run so far: a documented-but-absent method that had
+already propagated into a manuscript claim.* Lesson recorded — a docstring is not an implementation,
+and anything the manuscript asserts about method must be traced to executing code before it is written.
+
+### D3.8 — Experimental reference densities were 20 °C values mislabelled as 298 K
+1.188 and 1.290 g/cm³ are the standard handbook figures at **20 °C**, not 25 °C. Corrected to
+1.185 / 1.286 (298 K) and 1.166 (20 wt%, 333 K). **This made the failure slightly worse**
+(30 wt%/298 K: 9.16% → 9.50%), which is the right direction for honesty — the correction was not
+made to help the model. Provenance still needs pinning to one traceable source (Sipos et al.,
+*JCED* **45**, 613 (2000) at 298 K; Åkerlöf & Bender, *JACS* **63**, 1085 (1941) for T-dependence) — **OI-15**.
+
+### D3.9 — K⁺ ε was a unit-conversion bug
+Joung–Cheatham publish ε(K⁺) = **0.4297 kcal/mol**. I used 0.10270, which is exactly 0.4297/4.184 —
+I treated a kcal/mol value as if it were kJ/mol. Verified: 0.4297/4.184 = 0.102700. The σ I used
+(2.8384 Å) *is* the correct JC value, so the parameter set was **internally inconsistent**, and my
+own halide scan point (σ 4.83, ε 0.01279) used correct kcal/mol units. Corrected to 0.42970.
+**It is not the cause of the density failure** — at K–O contact the Coulomb term is ~−100 kcal/mol
+against a ~0.13 kcal/mol ε difference — and correcting it makes density marginally *worse*. Fixed
+for reproducibility, not to chase the gate.
+
+### D3.10 — My diagnosis was right in direction but wrong in reasoning
+I argued "the error grows with concentration, therefore the ions". **That is a non-sequitur.**
+Expressed as apparent molar volume the deficit is **≈13 cm³ per mole of KOH and nearly
+concentration-independent** (15.0 at 20 wt%, 12.4 at 30 wt%). The growth from 6.9% to 9.5% is mostly
+arithmetic — more ions times a roughly constant per-ion defect. The correct statement of the failure:
+
+> **φ_V(KOH) = −3.5 cm³/mol at 20 wt% and +1.6 at 30 wt%, against experimental +11.5 and +14.0.
+> The model says dissolving KOH in water *shrinks* the liquid.**
+
+Equivalent to a spurious internal pressure of ~2.5 kbar. The physical cause is that SPC/E's oxygen
+σ/ε are calibrated for a site carrying −0.8476 *shielded* by two hydrogens; giving that same
+repulsive core a bare, unshielded −1.0 strengthens ion–water attraction ~18% with no compensating
+core growth, so the first shell collapses (predicted OH–O_w peak 2.5–2.6 Å against an experimental
+2.77–2.79 Å).
+
+### D3.11 — Adopt a published, validated force field rather than re-deriving one
+Two peer-reviewed KOH force fields already solve this, one of them a LAMMPS study of KOH at
+20–45 wt% (Frischknecht & Stevens, Sandia) which reports **this exact failure mode** and finds that
+scaling ion charges by 0.8 is required *even with a correctly sized OH⁻*. Bonthuis et al. (2016)
+independently derived σ(OH⁻) = 3.81 Å, ε = 0.01195 kcal/mol for SPC/E — **within 0.04 Å of the
+crossing predicted from my own σ-scan slope**, which is strong mutual corroboration.
+
+Also important: Bonthuis found the optimal q_H(OH⁻) is **exactly zero**, i.e. the best available
+non-polarisable OH⁻ for SPC/E *is* a single charged LJ sphere. **My single-site topology was right;
+only the parameter values were wrong.** That retires the "move to a two-site OH⁻" plan as the
+primary fix.
+
+**Launched now (4 runs, decisive):** Bonthuis OH⁻ + Loche K⁺, geometric mixing, at
+**q = 1.0 and q = 0.8**, at both 20 and 30 wt%. This separates the size error from the charge error
+in two simulations: if q = 1.0 with correct σ still overpredicts density, charge scaling is
+load-bearing and no σ can substitute.
+
+### Escalation ledger update
+| Gate | Attempt | Model | Outcome |
+|---|---|---|---|
+| FF density gate | 1 | Opus | **Diagnosis resolved; concrete published parameters supplied; 3 of my own bugs found. Fix under test.** Not yet closed — closure requires the published-FF runs to pass. |
