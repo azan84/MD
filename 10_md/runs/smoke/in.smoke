@@ -1,0 +1,84 @@
+# ============================================================================
+# MD-1xx : bulk KOH(aq) force-field validation  --  THE GATE
+# Both Audit-1 auditors required the force field reproduce bulk KOH properties
+# before any interface or contact-angle run. If this fails, the FF is replaced.
+#
+# Measures: density (NPT), self-diffusivities (Einstein MSD), and the inputs for
+#           a Green-Kubo viscosity. Compared against experiment in analysis/.
+#
+# Usage: lmp -in in.bulk_koh -var data <file> -var T <K> -var tag <name>
+# ============================================================================
+variable        data   index data.koh30_s1
+variable        T      index 298.0
+variable        tag    index koh30_s1_298
+variable        Pbar   index 1.0
+
+units           real
+atom_style      full
+boundary        p p p
+
+read_data       ${data}
+
+# ---- force field -----------------------------------------------------------
+# 1=Ow 2=Hw 3=K+ 4=OH-(single site)
+pair_style      lj/cut/coul/long 10.0 10.0
+pair_modify     mix arithmetic tail yes
+pair_coeff      1 1 0.15530 3.16600     # SPC/E oxygen
+pair_coeff      2 2 0.00000 0.00000     # SPC/E hydrogen (no LJ)
+pair_coeff      3 3 0.10270 2.83840     # K+  Joung-Cheatham (SPC/E-optimised)
+pair_coeff      4 4 0.15530 3.16600     # OH- single site, LJ = SPC/E oxygen  [OI-14]
+
+bond_style      harmonic
+bond_coeff      1 1000.0 1.0            # rigid via SHAKE; k only for initialisation
+angle_style     harmonic
+angle_coeff     1 100.0 109.47
+
+kspace_style    pppm 1.0e-5
+
+group           watr  type 1 2
+group           kion  type 3
+group           ohion type 4
+group           ions  type 3 4
+
+neighbor        2.0 bin
+neigh_modify    delay 0 every 1 check yes
+
+fix             shk watr shake 1.0e-5 200 0 b 1 a 1
+
+# ---- 1. relax / equilibrate -------------------------------------------------
+velocity        all create ${T} 90210 mom yes rot yes dist gaussian
+timestep        1.0
+fix             nptrun all npt temp ${T} ${T} 100.0 iso ${Pbar} ${Pbar} 1000.0
+thermo          500
+thermo_style    custom step temp press density pe vol
+run             500                       # 30 ps equilibration
+
+# ---- 2. density production (NPT) -------------------------------------------
+reset_timestep  0
+variable        dens equal density
+fix             davg all ave/time 10 1000 10000 v_dens file dens_${tag}.dat
+run             500                       # 50 ps production
+variable        rho_mean equal f_davg
+print           "RESULT density_g_cm3 ${rho_mean}"
+unfix           davg
+unfix           nptrun
+
+# ---- 3. transport production (NVT at the equilibrated volume) ---------------
+fix             nvtrun all nvt temp ${T} ${T} 100.0
+reset_timestep  0
+compute         mw watr msd com yes
+compute         mk kion msd com yes
+compute         mo ohion msd com yes
+fix             msdw all ave/time 10 1 10 c_mw[4] file msd_water_${tag}.dat
+fix             msdk all ave/time 10 1 10 c_mk[4] file msd_k_${tag}.dat
+fix             msdo all ave/time 10 1 10 c_mo[4] file msd_oh_${tag}.dat
+
+# Green-Kubo inputs: off-diagonal pressure components
+variable        pxy equal pxy
+variable        pxz equal pxz
+variable        pyz equal pyz
+fix             pt all ave/time 1 1 1 v_pxy v_pxz v_pyz file press_${tag}.dat
+
+thermo          5000
+run             500                      # 200 ps production
+print           "DONE ${tag}"

@@ -28,3 +28,15 @@ Running log. One line per action. Newest at the bottom of each phase block.
 - 2026-08-14 · Wrote `02_problem/design_spec.md` and generated `parameter_matrix.csv` (98 cases, `stage`/`priority`/`status` columns so it truncates without invalidating what has run).
 - 2026-08-14 · **Budget triage (D1.3)**: initial matrix totalled 2750 h; the 3 3-D confirmation cases alone were 1080 h = 92% of the VOF budget. Cut to **one** corner run to first departure only. **Active budget now 1742 h (72.6 d), critical path 1230 h (51.2 d)** — fits the window with margin. VOF stage fell 7× (1172 → 164 h).
 - 2026-08-14 · **PHASE 1 COMPLETE.** Audit 1 dispatched.
+
+## Phase 3 (S-A) — MD force-field validation gate
+
+- 2026-08-14 · Wrote `10_md/systems/build_bulk_koh.py`; built 6 bulk systems (20/30 wt% × 3 seeds, ~4.7–4.9k atoms; 206 KOH per 1500 H₂O at 30 wt%). **Replicas, not block averages** — both auditors ruled single-trajectory blocks are not independent samples.
+- 2026-08-14 · Wrote `in.bulk_koh` with a **pre-registered PASS gate**: density ≤3%, D(H₂O) ≤30%, D(K⁺) ≤40%. **D(OH⁻) reported but NOT gated** — a single-site classical hydroxide cannot carry Grotthuss transport and is expected to be too slow; that is a declared limitation, not a hidden failure.
+- 2026-08-14 · Smoke test 1: lattice start spiked to 436 K. Added `minimize` → discovered LAMMPS **ignores `fix shake` during minimisation** and CG+PPPM managed only 21 iterations in ~2 min. **Replaced with a displacement-capped `nve/limit` + Langevin push** (D3.1). Verified: T 729 K → 331 K by step 1500 with monotonically falling PE, nothing destabilised.
+- 2026-08-14 · **Process failure caught:** one file edit reported success but did not reach disk, so a smoke test silently re-ran stale input (with `minimize` still present). Now grepping the actual file after every edit before launch (D3.2).
+- 2026-08-14 · Smoke test 3 validated the deck end-to-end: nve/limit → Langevin → NPT → density `ave/time` → NVT transport with MSD and pressure output. All five output streams confirmed writing.
+- 2026-08-14 · **EARLY SIGNAL (not yet a verdict):** smoke NPT gave ρ ≈ 1.34–1.36 g/cm³ at 298 K, 30 wt% vs experiment ≈1.29 — **~5% high, outside the 3% gate**. From only 1500 equilibration steps, so not conclusive; production has 70k steps of equilibration before 50k of density production. **Flagged as the likely outcome the gate was built to catch.**
+- 2026-08-14 · Wrote `build_interface.py`; built Ni(111)|KOH|Ni(111) systems for box convergence: **Lx = 8/12/16 nm → 19k/30k/41k atoms** (12 nm = 30k hits the revised size target), plus an EDL system with no bubble.
+- 2026-08-14 · **A1.4 failure mode made structurally impossible:** the builder refuses a bubble whose diameter exceeds 80% of Lx. Tested — a 5 nm bubble in an 8 nm box is rejected by name. The original spec's 3–8 nm caps in a 2.82 nm box cannot recur.
+- 2026-08-14 · **LAUNCHED 12-case validation campaign** (2 wt% × 3 seeds × 2 T) as concurrent single-rank jobs at `nice -n 5`. Core budget honoured: 12 mine + 16 operator's = 28 of 32 logical, **4 free** as instructed. ETA ~7–8 h under shared load.

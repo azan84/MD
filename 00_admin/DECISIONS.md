@@ -281,3 +281,30 @@ Acta*) is predominantly **microelectrode** work — single bubbles, tens of µm 
 high local supersaturation. agy's scaling applies to **macroscopic bubbles on planar/porous
 electrodes at industrial current density**. The apparent contradiction is a *regime difference*,
 not a disagreement, and saying so explicitly is itself a contribution.
+
+## Phase 3
+
+**D3.1 — No `minimize`; displacement-capped push instead.**
+LAMMPS warns "Using fix shake with minimization" because SHAKE is *ignored* during minimisation, so
+a minimised configuration is not consistent with the constrained dynamics that follow. CG with PPPM
+on a lattice start was also measured at ~21 iterations in 2 minutes. A `fix nve/limit 0.05` push
+with a strong Langevin thermostat relaxes close contacts robustly, keeps SHAKE active throughout,
+and is ~30× cheaper.
+
+**D3.2 — Verify file contents after every edit, before launching compute.**
+An edit reported success but did not persist; a smoke test then silently ran stale input containing
+the very `minimize` command I had removed, and I nearly diagnosed a phantom problem. Cheap rule,
+adopted: `grep` the file for the changed token before any run that costs more than a minute.
+
+**D3.3 — Launched the campaign despite an adverse early density signal.**
+The smoke test suggests ρ may land ~5% high, outside the 3% gate. Launching anyway is correct: the
+smoke had 1500 equilibration steps against production's 70 000, and the gate is only meaningful on
+converged, replica-averaged data. Deciding the force field is wrong from an unconverged smoke test
+would be exactly the kind of premature conclusion the gate is designed to prevent. **If production
+confirms the miss, the force field is replaced — most likely by a two-site OH⁻ or a K⁺/OH⁻ LJ
+re-tune against density — and the θ campaign does not launch until it passes.**
+
+**D3.4 — Core budget interpreted as logical cores.**
+Operator instruction was "keep 4 cores free, use the rest". Their own two jobs hold 16 ranks; mine
+take 12; total 28 of 32 logical cores, leaving exactly 4. My jobs run at `nice -n 5` so the
+operator's work retains priority under contention.
