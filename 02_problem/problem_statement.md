@@ -54,7 +54,13 @@ correction is standard in the corpus (E04, E05, E07, E13):
 **Concentration.** Adhering bubbles obstruct transport of OH⁻ to and from the surface and, at high
 Θ, the electrode approaches a mass-transfer limit.
 
-**(5)**  `η_conc = (RT / nF) · ln[1 / (1 − j/j_lim(Θ))]`
+**(5)**  `η_conc = (RT / nF) · ln[1 / (1 − j/j_lim(Θ))]`   — **OH⁻ mass-transfer limitation**
+
+**(5a)** Distinct and additional (agy, Audit 1 N4): adhering bubbles drive local dissolved-H₂
+supersaturation, giving a **Nernstian shift**
+`ΔE_rev = (RT / 2F) · ln( c_H₂,surf / c_H₂,sat )`, which reaches **40–80 mV** at high current
+density. Equations (5) and (5a) are different physics and the manuscript states which is reported;
+they are **not** to be summed without justification.
 
 Equations (2)–(5) are why Θ is the closure that matters, and why deriving it is worth a study.
 
@@ -88,32 +94,60 @@ unstated); E25 (openFuelCell2, GPLv3) **has no alkaline model** — listed as fu
 
 ## 3. The claim T12 makes
 
-> **A bubble-coverage closure whose wettability dependence is derived from interface-resolved
+> **A bubble-coverage closure whose *wettability dependence* is derived from interface-resolved
 > simulation with a potential-aware molecular contact angle, rather than fitted to legacy
 > low-current-density data, changes the predicted cell polarisation of an alkaline electrolyser at
 > industrial current density by an amount that exceeds the spread between existing empirical
-> closures — and it does so only within a bounded region of (j, v, θ) which this work maps.**
+> closures — and this work bounds the region of (j, v, θ) over which that closure is valid, showing
+> it covers the whole industrial envelope.**
+
+**Two scope words are load-bearing and were tightened at Audit 1:**
+- *"wettability dependence"*, not *"coverage"*. A single-bubble simulation cannot derive coverage;
+  nucleation-site density `N_site` is an explicit external input (eq. 29a, `LIMITATIONS.md` §6).
+- *"bounds … showing it covers the whole envelope"*, not *"maps where it breaks down"*. The
+  Marangoni scaling (P3, below) says no breakdown region exists at this scale, so the deliverable is
+  a quantitative demonstration of validity rather than a boundary hunt.
+
+**Assumed kinetics, stated because the headline number depends on it by 3×:** Volmer-limited HER,
+α_app = αn = 0.5, implying a Tafel slope of **140.1 mV dec⁻¹** at 353 K and a coverage penalty of
+97.9 mV at Θ = 0.8. Were the Heyrovsky step rate-determining (α_app ≈ 1.5, 46.7 mV dec⁻¹), the same
+coverage would cost only **32.7 mV**. The manuscript reports both and names the assumption.
 
 ### Three falsifiable predictions
 
-**P1.** Contact angle computed under electrode polarisation differs measurably from its
-zero-potential value, and the difference grows with |ΔΨ|.
-*Falsified if* θ(ΔΨ) is flat within the block-averaged uncertainty across the accessible window.
+**P1.** Contact angle computed under electrode polarisation differs from its zero-charge value by
+more than **3°**, following the Lippmann electrowetting form
+`cos θ(ΔΨ) = cos θ_pzc + C_dl (ΔΨ − Ψ_pzc)² / (2 γ_lv)`.
+*Pre-registered expectation (agy, Audit 1, verified):* with C_dl = 0.1–0.3 F m⁻² and
+ΔΨ − Ψ_pzc = 0.5 V, the predicted shift is **10°–31°** — comfortably above the replica uncertainty.
+*Falsified if* |θ(ΔΨ) − θ(Ψ_pzc)| < 3° across the accessible window, at replica scatter < 2°.
+*Note:* the quadratic form predicts cos θ > 1 for C_dl ≥ 0.2 F m⁻² at ΔΨ = 1.0 V. **Contact-angle
+saturation is a real electrowetting phenomenon**, so the quadratic is an upper bound and observing
+saturation is a result, not a failure.
 
 **P2.** Coverage measured from a resolved interface departs from Θ = 0.023 j^0.3 by more than the
 inter-model spread E04 reports, with the departure increasing with j.
 *Falsified if* the resolved coverage tracks the Vogt form within that spread across the campaign.
 
-**P3.** There exists a boundary in (j, v) beyond which departure radius is insensitive to θ because
-solutal Marangoni forces dominate capillary forces — so a θ-dependent closure has a finite validity
-domain.
-*Falsified if* the capillary:Marangoni ratio stays ≫ 1 or ≪ 1 across the whole envelope, i.e. no
-boundary exists within it.
+**P3 — REFORMULATED at Audit 1 (D2.7).** Across the industrial envelope
+(j = 10²–10⁴ A m⁻², v = 0–0.2 m s⁻¹) the capillary-to-Marangoni force ratio satisfies **Λ ≫ 1**, so
+departure is capillary/wettability-controlled and a θ-dependent closure is valid throughout. The
+θ-controlled region is **bounded quantitatively rather than assumed**.
+*Falsified if* any (j, v) in the envelope yields **Λ < 10** in the verified implementation.
 
-**Note P3 is written to be losable.** If Marangoni dominates everywhere in the industrial envelope,
-that is a publishable negative result which redirects the field away from wettability-based closures
-— and the corpus's own trend (E26 naming wettability engineering a primary management strategy)
-makes that outcome interesting rather than embarrassing.
+> **Why this was reformulated.** The original P3 asserted a Marangoni-controlled boundary exists
+> inside the envelope. Independent scaling by the physics auditor, which I verified, shows it does
+> not: `F_cap = π R_base γ sinθ ≈ 3.9 µN` for a 50 µm bubble, against `F_Mar ≈ 0.05 nN` (dissolved
+> H₂) to **12.5 nN** (KOH gradients) — giving **Λ ≈ 313 to 78 000**. Marangoni is 2–5 orders too
+> small. Retaining the old P3 would have driven a large campaign toward a null result that the
+> scaling already predicts.
+>
+> **Regime distinction, stated so a referee does not raise it first.** The Marangoni literature in
+> `prior_art_delta.md` (*Nature Chemistry*, *PRR*, *Electrochim. Acta*) is predominantly
+> **microelectrode** work — single bubbles at and below tens of µm with very high local
+> supersaturation, where capillary retention is small. This study addresses **macroscopic bubbles on
+> planar/porous electrodes at industrial current density**. The apparent contradiction is a regime
+> difference, not a disagreement, and demonstrating where the crossover lies is a contribution.
 
 ## 4. Novelty scoping
 

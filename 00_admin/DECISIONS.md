@@ -161,3 +161,123 @@ which is defensible, rather than "coverage is derived", which is not.
 - **Low-j redesign:** growing a 50 µm bubble at 100 A/m² needs ~5.7 s (~10⁷ steps) and is not
   affordable. The low-j corner instead uses a **seeded near-departure bubble** to measure the
   departure event directly, with the growth phase treated analytically. Stated as a method choice.
+
+## Audit 1 — agy (physics & modelling). Two-auditor reconciliation.
+
+**OA-1 withdrawn: `agy` was never unauthenticated** — the failure was an intermittent IPv6 route
+problem in the eligibility check (see `OPERATOR_ACTION.md`). Audit 1 is therefore **NOT degraded**;
+it has both auditors. My earlier "SINGLE-AUDITOR — DEGRADED" tag is retracted.
+
+**agy verdict: CONDITIONAL PASS / major modelling revisions required.**
+(Codex verdict: major revision / no-go for the current matrix.)
+
+### Independent confirmation — the two auditors agree, having never seen each other's response
+
+| Finding | Codex | agy | Status |
+|---|---|---|---|
+| Eq (3) → **97.9 mV** at Θ=0.8, not 49 mV | ✅ | ✅ identical derivation | **Confirmed twice.** Already fixed. |
+| Faradaic flux must be **j/(2F(1−Θ))** | ✅ | ✅ identical | **Confirmed twice.** Already fixed. |
+| Cylindrical cap: **κ_line ≡ 0**, so no 1/R line-tension fit | ✅ | ✅ + geodesic-curvature derivation | **Confirmed twice.** Already fixed. |
+| `N_site` must be an external input; only wettability-dependent factors are derived | ✅ | ✅ | **Confirmed twice.** Already fixed. |
+| MD concurrency: 12 concurrent 1-rank jobs ≈ one case's wall time | (not raised) | ✅ computes 16.3 d | Matches my measured 19.6 d. |
+| Seed low-j cases at 0.90 R_det | ✅ | ✅ | Already implemented (0.85). |
+
+Two independent auditors reaching the same four blocking findings by different routes is strong
+evidence the findings are real, and it retires any doubt about the corrections already applied.
+
+### New physics from agy that Codex did not supply — all verified by me
+
+**N1 — P3 is quantitatively out of reach, and this is the most consequential finding of Audit 1.**
+agy computes the force ratio directly. I reproduced it:
+
+| Driver | ∂γ/∂c | Δc | Δγ | F_Mar | **Λ = F_cap/F_Mar** |
+|---|---|---|---|---|---|
+| dissolved H₂ | ~1×10⁻⁴ N m⁻¹ M⁻¹ | 10 mM | 1.0×10⁻⁶ N m⁻¹ | **0.05 nN** | **~78 000** |
+| KOH gradient | ~2.5×10⁻³ N m⁻¹ M⁻¹ | 0.1 M | 2.5×10⁻⁴ N m⁻¹ | **12.5 nN** | **~313** |
+
+against `F_cap = π R_base γ sinθ ≈ **3.9 µN**` for a 50 µm bubble. **Marangoni is 2–5 orders of
+magnitude too small.** The Λ = 1 boundary is not reachable in the industrial envelope except as
+θ → 0 or for sub-micron bubbles.
+
+**N2 — Lippmann electrowetting gives P1 a pre-registered quantitative threshold**, which is exactly
+what Codex demanded ("'measurably' needs a numerical decision rule"). The two audits complement:
+`cos θ(ΔΨ) = cos θ_pzc + C_dl(ΔΨ − Ψ_pzc)²/(2γ_lv)`.
+Verified: at C_dl = 0.1 F m⁻², ΔΨ = 0.5 V → **10° shift**; C_dl = 0.3 F m⁻², 0.5 V → **31°**.
+*My addition:* at C_dl ≥ 0.2 F m⁻² and ΔΨ = 1.0 V the quadratic predicts cos θ > 1, i.e. complete
+wetting — unphysical. **Contact-angle saturation is a real, documented electrowetting phenomenon**,
+so the quadratic is an upper bound and observing saturation in the MD is a result, not a failure.
+
+**N3 — The Vogt/Rox reconciliation has an exact geometric mechanism.**
+`A_contact/A_projected = sin²θ`. Verified: at θ = 30° or 150° the optical measure is inflated
+**4.00×**; at 90°, 1.00×. Combined with 3D porous-mesh line-of-sight integration and detached-plume
+occlusion, this accounts for the 4–6× discrepancy without either dataset being wrong.
+
+**N4 — Nernstian dissolved-gas overpotential is missing from eq (5).**
+`ΔE_rev = (RT/2F) ln(c_H₂,surf/c_H₂,sat)`, reaching **40–80 mV** at high current density, is
+distinct from the mass-transfer limiting current. Eq (5) must state which it represents.
+
+**N5 — The kinetic convention choice is worth 3× in the answer.**
+Volmer-limited (αn = 0.5): **140.1 mV/dec**, penalty 97.9 mV at Θ = 0.8.
+Heyrovsky-limited (α_app = 1.5): **46.7 mV/dec**, penalty **32.7 mV**. Both verified.
+The manuscript must name the assumed rate-determining step and quote the implied Tafel slope, since
+the coverage penalty — the study's headline quantity — depends on it by a factor of three.
+
+**N6 — Double-counting has a concrete failure mode.** If the near-wall cell carries the adhering
+bubble volume inside ε_g *and* the boundary face applies (1−Θ), the ohmic drop across that cell is
+penalised twice. Guard: adhering gas → Θ only; on detachment it is injected as a volumetric source
+into ε_g. Added to the QC assertions.
+
+### Reviewer-vs-reviewer disagreements — my rulings
+
+**D-AUDIT-1 — Number of 3D confirmation cases.**
+*Codex:* one corner cannot bound the axisymmetry assumption; **≥2 contrasting** cases required.
+*agy:* cut to one; defer the second (Cut 3).
+**RULING: Codex.** Keep **two contrasting corners**, at priority 5 (deferrable if the schedule
+slips). agy's own §(b)(2) strengthens Codex's case: axisymmetry suppresses shear-induced asymmetric
+contact-line depinning and bubble tilting, which cause departure at *smaller* radii. Since
+agy's N1 shows Marangoni is negligible, **asymmetric shear departure becomes the leading
+uncertainty**, so bounding it with one case is not enough. Cost is 144 h, affordable.
+
+**D-AUDIT-2 — Is the Vogt/Rox mismatch demonstrated?**
+*Codex:* "plausible and probably a large part of it, **but not demonstrated** — must not be called
+a resolution."
+*agy:* "physically correct and **mathematically demonstrable**", and supplies sin²θ.
+**RULING: Codex's standard, agy's mechanism.** The mechanism is adopted as the *route* to a
+demonstration; the claim remains "characterised, not resolved" until the dual extraction
+(Θ_adh and synthetic-optical A_cov,proj on one time base) actually reproduces both numbers.
+Codex is right that a smooth axisymmetric bubble cannot fully perform a *porous-electrode*
+reconciliation, so the manuscript will state what the demonstration does and does not cover.
+OI-6 stays open.
+
+**D-AUDIT-3 — Status of P3.**
+*Codex:* reachability "not established by the cited evidence"; requires pilot cases before
+allocating the map.
+*agy:* quantitatively unreachable (Λ ≈ 300–78 000); reframe as a bounding test.
+**RULING: agy, with Codex's guard.** P3 is **reformulated** (D2.7). The scaling is accepted as the
+pre-registered expectation; Codex's demand for verification is met by the mandatory thermocapillary
+benchmark (`VOF-000b`) plus **two pilot cases at the most Marangoni-favourable corner** before any
+map is allocated. If the pilots contradict the scaling, the map is reinstated at full resolution.
+
+### D2.7 — P3 reformulated, and D1.2 partially reversed
+
+**Old P3:** "There exists a boundary in (j, v) beyond which departure is Marangoni-controlled and
+θ-insensitive." — Likely false, and it was driving a large campaign toward a null.
+
+**New P3:** *"Across the industrial envelope (j = 10²–10⁴ A m⁻², v = 0–0.2 m s⁻¹), the
+capillary-to-Marangoni force ratio Λ satisfies Λ ≫ 1, so bubble departure is capillary/wettability-
+controlled and a θ-dependent coverage closure is valid throughout. The θ-controlled region is
+bounded quantitatively rather than assumed."*
+*Falsified if* any (j, v) in the envelope yields Λ < 10 in the verified implementation.
+
+**This partially reverses D1.2**, which promoted the applicability map to a primary deliverable on
+the grounds that Marangoni was the principal threat to a θ-only closure. agy's scaling shows it is
+not a threat *at this scale*. The map survives but changes role: from "where wettability closures
+break down" to **"quantitative demonstration that wettability control is the dominant lever across
+the whole industrial envelope"**.
+
+**Regime distinction that must be stated in the manuscript, or a referee will raise it:** the
+Marangoni literature identified in `prior_art_delta.md` (*Nature Chemistry*, *PRR*, *Electrochim.
+Acta*) is predominantly **microelectrode** work — single bubbles, tens of µm and below, with very
+high local supersaturation. agy's scaling applies to **macroscopic bubbles on planar/porous
+electrodes at industrial current density**. The apparent contradiction is a *regime difference*,
+not a disagreement, and saying so explicitly is itself a contribution.

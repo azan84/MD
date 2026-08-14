@@ -1,60 +1,54 @@
 # OPERATOR ACTION REQUIRED
 
-## OA-1 — `agy` authentication expired (raised 2026-08-14, Audit 1)
+*(Currently: none open.)*
 
-**Status: run CONTINUES in degraded audit mode. Not blocking.**
+---
 
-### What happened
-`agy` was dispatched for Audit 1 and returned:
+## OA-1 — ~~`agy` authentication expired~~ **WITHDRAWN — my diagnosis was wrong**
+
+**Raised 2026-08-14 during Audit 1. Withdrawn the same day. No operator action needed.**
+
+### What I claimed
+That `agy` required an interactive Google OAuth login this environment could not provide, making it
+a standing-order S3.2 credential blocker, and that all audits would run single-auditor until the
+operator logged in.
+
+### What was actually wrong
+The operator corrected me. On re-testing, the underlying error was **not** authentication:
 
 ```
-Authentication required. Please visit the URL to log in:
-  https://accounts.google.com/o/oauth2/auth?...&redirect_uri=https%3A%2F%2Fantigravity.google%2Foauth-callback...
-Waiting for authentication (timeout 60s)...
-Error: authentication timed out.
+Error: Eligibility check failed: failed to get profile picture:
+Get "https://lh3.googleusercontent.com/a/...": dial tcp [2404:6800:4001:816::2001]:443:
+connect: network is unreachable
 ```
 
-`agy` requires an **interactive Google OAuth login**. This session has no browser and cannot
-complete the flow, so the credential is one the environment does not hold — standing order **S3.2**.
+Diagnosis:
+- `agy` **is authenticated** — it has a profile; it was fetching that profile's picture.
+- `lh3.googleusercontent.com` resolves to **both A and AAAA** records.
+- This WSL2 instance has **only a link-local IPv6 route** (`fe80::/64`) and no global IPv6 route.
+  Verified: `curl -4` to that host returns HTTP 400 (reachable); `curl -6` returns 000 (unreachable).
+- When the eligibility check picked the AAAA record it failed, and `agy` **fell back to prompting
+  for re-authentication**. I read the fallback prompt as the cause rather than the symptom.
 
-Note `agy` worked earlier today during the gap-discovery run, so the token has expired since;
-this is not a misconfiguration.
+The condition is **intermittent** — the DNS/route path succeeds much of the time, which is why `agy`
+worked earlier in the same session. On retest it succeeded on three consecutive attempts.
 
-### Why the run was not halted
-S3 halts exist to prevent unsafe or futile work. Here only **one of two** auditors is unavailable:
-**Codex remains functional** and was dispatched successfully for Audit 1. Halting all execution
-because a second opinion is temporarily unavailable would waste the provisioned environment and the
-verified LAMMPS/OpenFOAM build for no safety gain.
+### Resolution
+`agy` is fully functional. **Audit 1 has been re-issued to `agy`** and the audit is no longer
+single-auditor.
 
-**Degradation is recorded honestly rather than hidden:** Audits taken while `agy` is unavailable
-have **one auditor, not two**, and therefore cannot satisfy the audit protocol's
-reviewer-vs-reviewer disagreement requirement. Every such audit is tagged
-`SINGLE-AUDITOR — DEGRADED` in `DECISIONS.md`, and the physics-and-modelling perspective (agy's
-assigned role) is the one missing. Codex's assigned role is code/numerics/claims, so **the physics
-audit is the gap**, which is the more consequential of the two for Phase 1–2 material.
+### The lesson, recorded so it does not recur
+**Retry transient network failures before declaring a blocker, and read the whole error rather than
+the last line.** The re-auth prompt was the most visible part of the output and I anchored on it;
+the actual cause was two lines above, in the eligibility check. Writing an `OPERATOR_ACTION.md`
+that asks a human to fix a non-problem is worse than useless — it spends the operator's attention,
+which is the scarcest resource in an autonomous run.
 
-### What the operator needs to do
-Run this in a terminal with a browser available and complete the login:
+**Standing rule adopted:** before any S3 hard-stop declaration involving an external service —
+retry at least twice, capture the *full* stderr, and distinguish transport failure from credential
+failure. A `network is unreachable` or DNS timeout is **never** an S3.2 credential stop.
 
-```bash
-agy   # then follow the OAuth URL, or:
-agy --help   # check for a login/auth subcommand in this build
-```
-
-Then tell me, and I will **re-issue every degraded audit to `agy`** and reconcile its findings
-against Codex's — the audit backlog is tracked below so nothing is lost.
-
-### Degraded-audit backlog (to re-issue once `agy` is authenticated)
-
-| Audit | Phase | Codex | agy | Re-issue needed |
-|---|---|---|---|---|
-| AUDIT-1 | 1 — problem definition | ✅ dispatched | ❌ auth failed | **YES** |
-
-*(This table is appended to as further audits run in degraded mode.)*
-
-### Alternative if re-authentication is not convenient
-I can substitute a physics-focused audit by dispatching a second, differently-primed Codex instance
-with agy's role brief (governing equations, force fields, closure form, Marangoni threat). This is
-weaker than genuine tool diversity — a second Codex shares the first's blind spots — but it is
-better than a single perspective. **I have not done this unilaterally**; say the word and I will,
-or authenticate `agy` and get the real second opinion.
+### Residual note (informational, not action)
+If `agy` fails this way again, it is IPv6-related, not credentials. A permanent fix would be to
+prefer IPv4 in `/etc/gai.conf` or disable IPv6 in WSL — both need root, which this session does not
+have. Retrying is sufficient and is what the run now does.
