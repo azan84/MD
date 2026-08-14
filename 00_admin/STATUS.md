@@ -57,3 +57,10 @@ Running log. One line per action. Newest at the bottom of each phase block.
 - 2026-08-14 · **Prime suspect identified**: OH⁻ was modelled as a single LJ site with SPC/E-*oxygen* parameters (σ = 3.166 Å) carrying full −1 charge. A bare oxygen-sized anion at unit charge produces excessive electrostriction. K⁺ (Joung–Cheatham) is well established and is not the first suspect.
 - 2026-08-14 · **The θ campaign is NOT launched** — the gate exists precisely to stop this, and it stopped it.
 - 2026-08-14 · Launched a 5-point OH⁻ σ-scan at the worst state point (30 wt%, 298 K): σ ∈ {3.4, 3.7, 4.0, 4.3} Å at fixed ε, plus one halide-like point (σ = 4.83 Å, ε = 0.0128 kcal/mol). 12 jobs total, exactly at the allocated budget.
+
+## Paper 1 drafted
+
+- 2026-08-15 · Drafted `60_manuscript/paper1/manuscript.tex`; compiled to 8-page PDF (`~/T12_paper1_draft.pdf`).
+- 2026-08-15 · Structure: Intro (GAP-M-02), Theory (constant-potential scheme, Lippmann, apparent molar volume as the diagnostic), Methods, **§4 Results: force-field development — COMPLETE with real data**, §5 wettability results PENDING.
+- 2026-08-15 · New figure `fig5_ff_development.pdf`: (a) σ-scan with measured crossing 3.67 Å vs published 3.81 Å; (b) charge scaling at the published σ — q=1.0 fails +6.0/+7.8%, q=0.8 passes −1.1/−1.5%.
+- 2026-08-15 · Paper 1 carries the FULL MD methods; Paper 2's §3.1 must be compressed to a summary citing Paper 1 before submission, to avoid duplicate methods across the pair (salami risk).

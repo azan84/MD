@@ -166,3 +166,63 @@ def fig4_pipeline():
 if __name__ == "__main__":
     fig1_density_gate(); fig2_transport(); fig3_sigma_scan(); fig4_pipeline()
     print(f"\n{len(made)} figure(s) written to {FIGDIR}")
+
+
+def fig5_ff_development():
+    """Paper 1 headline: sigma is necessary but not sufficient; charge scaling closes it."""
+    import glob as _g
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(7.0, 2.95))
+
+    # -- panel a: sigma scan --
+    pts = []
+    for f in sorted(_g.glob(os.path.join(ROOT, "10_md/runs/oh_scan/dens_sig*.dat"))):
+        m = re.search(r"sig([\d.]+)_eps([\d.]+)\.dat$", os.path.basename(f))
+        if not m: continue
+        arr = np.atleast_2d(np.loadtxt(f, comments="#"))
+        if arr.size == 0 or arr.shape[1] < 2: continue
+        pts.append((float(m.group(1)), float(m.group(2)), arr[:, 1].mean()))
+    EXP30 = 1.286
+    std = sorted([p for p in pts if abs(p[1] - 0.1553) < 1e-4])
+    if std:
+        xs = np.array([p[0] for p in std]); ys = np.array([p[2] for p in std])
+        a1.plot(xs, ys, "o-", color=C_SIM, ms=5, label="σ scan (ε fixed)")
+        i = int(np.where(ys >= EXP30)[0][-1])
+        cross = xs[i] + (EXP30 - ys[i]) * (xs[i+1] - xs[i]) / (ys[i+1] - ys[i])
+        a1.plot([cross], [EXP30], "*", ms=13, color="#e67e22", zorder=6,
+                label=f"crossing σ={cross:.2f} Å")
+    a1.scatter([3.166], [1.4081], marker="X", s=70, color=C_BAD, zorder=6)
+    a1.annotate("rejected\n(SPC/E O size)", (3.166, 1.4081), textcoords="offset points",
+                xytext=(6, -18), fontsize=7.2, color=C_BAD)
+    a1.axhline(EXP30, color=C_EXP, ls="--", lw=1.0)
+    a1.axhspan(EXP30*0.97, EXP30*1.03, color=C_OK, alpha=0.15, zorder=0)
+    a1.axvline(3.81, color="#7d3c98", ls=":", lw=1.2)
+    a1.text(3.86, 1.245, "published\n3.81 Å", fontsize=7.2, color="#7d3c98")
+    a1.set_xlabel(r"OH$^-$ Lennard-Jones $\sigma$  ($\AA$)")
+    a1.set_ylabel(r"density $\rho$  (g cm$^{-3}$)")
+    a1.set_title("(a) size alone can hit the target")
+    a1.legend(frameon=False, fontsize=7.2, loc="lower left")
+
+    # -- panel b: charge scaling at the published sigma --
+    data = {(20, "1.0"): 1.2561, (20, "0.8"): 1.1723,
+            (30, "1.0"): 1.3858, (30, "0.8"): 1.2662}
+    exp = {20: 1.185, 30: 1.286}
+    x = np.arange(2); w = 0.34
+    q10 = [100*(data[(c, "1.0")] - exp[c])/exp[c] for c in (20, 30)]
+    q08 = [100*(data[(c, "0.8")] - exp[c])/exp[c] for c in (20, 30)]
+    a2.bar(x - w/2, q10, w, color=C_BAD, label="q = 1.0 (formal)")
+    a2.bar(x + w/2, q08, w, color=C_OK, label="q = 0.8 (ECC)")
+    a2.axhspan(-3, 3, color=C_OK, alpha=0.13, zorder=0)
+    a2.axhline(0, color="#555", lw=0.7)
+    for xi, v in zip(x - w/2, q10):
+        a2.text(xi, v + 0.35, f"+{v:.1f}", ha="center", fontsize=7.2, color=C_BAD)
+    for xi, v in zip(x + w/2, q08):
+        a2.text(xi, v - 0.95, f"{v:.1f}", ha="center", fontsize=7.2, color=C_OK)
+    a2.set_xticks(x); a2.set_xticklabels(["20 wt%", "30 wt%"])
+    a2.set_ylabel("deviation from experiment (%)")
+    a2.set_ylim(-4.5, 10)
+    a2.set_title("(b) but charge scaling is what closes it")
+    a2.legend(frameon=False, fontsize=7.5, loc="upper left")
+    a2.text(0.5, -3.9, "gate ±3%", ha="center", fontsize=7.2, color=C_OK)
+
+    fig.tight_layout(); f = os.path.join(FIGDIR, "fig5_ff_development.pdf")
+    fig.savefig(f); plt.close(fig); made.append(f); print("fig5 ->", f)

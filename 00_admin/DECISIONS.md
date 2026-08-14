@@ -458,3 +458,21 @@ impossible before because no dumps were written.
 **D3.14 — Rejected-FF runs preserved, not deleted.** `10_md/runs/bulk_koh_REJECTED_FF/` is retained.
 It is the evidence base for the gate-failure figure already in the manuscript, and deleting a
 negative result because it was superseded would be poor practice.
+
+**D3.15 — Paper 1 framed around the force-field result, not around an absent contact angle.**
+The θ(ΔΨ) campaign has not run, so Paper 1's completed content is the force-field development. Rather
+than write a thin paper waiting on results, §4 is developed as a genuine contribution: the apparent
+molar volume diagnosis, the demonstration that a size-only repair *passes the density gate but is
+still wrong*, and the separation of size from charge. This is publishable on its own merits and is
+the honest description of what has been established.
+
+**The section that matters most is §4.4, "Why the size-only repair was rejected."** A σ of 3.70 Å
+reproduces the 30 wt% density to −0.57% and would have passed the gate. Reporting that we found it,
+and rejected it, is more informative than reporting only the adopted parameters — it is the
+difference between a gate that tests something and a gate that is tuned until it is passed.
+
+**D3.16 — Methods duplication between the two papers must be resolved before submission.**
+Paper 1 now carries the full MD methodology. Paper 2 currently repeats it in §3.1. Before either is
+submitted, Paper 2's MD methods must compress to a summary citing Paper 1. Ordering therefore
+matters: Paper 1 must be submitted first, or Paper 2 cannot cite it and Paper 1 becomes the
+derivative work. Logged as OI-19.
