@@ -332,3 +332,13 @@ instead. That is a larger change and would be logged as such.
 
 **Note on what did NOT happen:** no attempt was made to widen the gate to accommodate the result.
 The criterion was fixed before the data existed and is being held to.
+
+**D3.6 — Operator escalation policy for blocking gates (2026-08-14).**
+Operator instruction: when a gate blocks and requires resolution, escalate to a higher model
+(Opus) for up to **3 attempts**; if unresolved, escalate to **Fable** for up to 3 attempts; if still
+unresolved, **stop and require human approval**. Recorded here as standing procedure.
+
+Escalation ledger:
+| Gate | Attempt | Model | Outcome |
+|---|---|---|---|
+| FF density gate (D3.5) | 1 | Opus | dispatched 2026-08-14 |

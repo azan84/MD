@@ -1,2 +1,5 @@
 01_env/bench/
 *.pyc
+0*.log
+60_manuscript/paper2/*.aux
+60_manuscript/paper2/*.out
