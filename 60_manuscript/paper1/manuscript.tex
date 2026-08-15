@@ -361,12 +361,130 @@ exactly zero, so the single-site representation is not an approximation adopted 
 is the form the optimisation selects. \textbf{Our error was in the parameter values, not in the
 topology.}
 
-\subsection{Re-validation}
-\pending{Full 12-case re-validation with the adopted force field, including transport properties and
-the hydroxide--water radial distribution function. The first completed cases give
-\SI{1.1731}{\gram\per\cubic\centi\metre} at 20\,wt\% ($-1.0\,\%$) and
-\SI{1.2688}{\gram\per\cubic\centi\metre} at 30\,wt\% ($-1.3\,\%$), both inside the gate; the
-remaining cases and the transport stage are running at the time of writing.}
+\subsection{What changed between the failing and passing models}\label{sec:whatchanged}
+
+Because the gate was failed and then passed, it is necessary to state precisely what changed, so
+that the pass is attributable and not the product of accumulated adjustment. Five changes were made.
+They are listed with their individual effect, and only the first is responsible for the pass.
+
+\begin{table}[htbp]\centering\small
+\caption{Every methodological change between the model that failed the gate and the model that
+passed it. Only change~1 is responsible for the pass; the others were made for correctness and are
+reported because two of them altered the numbers.}
+\label{tab:changes}
+\begin{tabular}{@{}p{0.32\textwidth}p{0.30\textwidth}p{0.30\textwidth}@{}}
+\toprule
+Change & Before & After \\
+\midrule
+\textbf{1. Hydroxide and potassium parameters, and ionic charge} \newline \emph{Responsible for the pass}
+& OH$^-$: $\sigma=3.166$\,\AA, $\varepsilon=0.1553$ (SPC/E oxygen); K$^+$ Joung--Cheatham; $q=\pm1.0$; arithmetic mixing
+& OH$^-$: $\sigma=3.810$\,\AA, $\varepsilon=0.01195$ (Bonthuis); K$^+$ Loche; $q=\pm0.8$ (ECC); geometric mixing \\
+\addlinespace
+2. Potassium well depth (unit error) & $\varepsilon=0.10270$\,kcal\,mol$^{-1}$ & $\varepsilon=0.42970$\,kcal\,mol$^{-1}$ \\
+\addlinespace
+3. Finite-size correction on diffusivities & documented but \textbf{not applied} & Yeh--Hummer applied; $+5$ to $+17\,\%$ \\
+\addlinespace
+4. Experimental reference densities & 20\,\textcelsius\ handbook values labelled 298\,K & values at the stated temperature \\
+\addlinespace
+5. Trajectory output & none written & dumped, enabling the structural check \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three of these require comment.
+
+\textbf{Change 2 was a unit-conversion error of ours, and it is not the cause of the failure.} The
+published potassium well depth is $0.4297$\,kcal\,mol$^{-1}$; the value used was $0.10270$, which is
+that number divided by 4.184, i.e.\ a kcal\,mol$^{-1}$ quantity treated as kJ\,mol$^{-1}$. The
+Lennard-Jones diameter used was simultaneously correct, so the parameter set was internally
+inconsistent. Its effect on density is nevertheless negligible: at the K--O contact distance the
+Coulomb term is of order $-100$\,kcal\,mol$^{-1}$ against a well-depth difference of
+$\approx0.13$\,kcal\,mol$^{-1}$, and correcting it moves the density in the \emph{unfavourable}
+direction. It is reported because it was real, not because it mattered.
+
+\textbf{Change 3 altered reported diffusivities but not the verdict.} The finite-size correction was
+described in the analysis but absent from the code that produced the numbers. It is now applied, and
+the corrections are 5--17\,\%, largest at high concentration where the box is smallest and the
+viscosity highest. No gate outcome depends on it, because diffusivity was not the criterion that
+failed.
+
+\textbf{Change 4 made the failure larger, not smaller.} The reference densities were handbook values
+at 20\,\textcelsius\ that had been labelled as 298\,K. Correcting them increased the reported
+deviation of the failing model at 30\,wt\% from $+9.16\,\%$ to $+9.50\,\%$. \textbf{The
+tolerance itself was never adjusted}, and no change was made that reduced the apparent severity of
+the failure.
+
+\subsection{Re-validation of the adopted model}\label{sec:reval}
+
+The full twelve-case validation was repeated with the adopted force field: two concentrations, two
+temperatures, three independent seeds each. \textbf{All four state points pass}
+(Table~\ref{tab:reval}, Fig.~\ref{fig:beforeafter}).
+
+\begin{table}[htbp]\centering\small
+\caption{Re-validation. Densities in \si{\gram\per\cubic\centi\metre}; uncertainty is the
+spread across three independent seeds. Diffusivities are Yeh--Hummer corrected.}
+\label{tab:reval}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+System & $\rho$ rejected & $\rho$ adopted & $\rho$ exp & Error & $D_{\mathrm{H_2O}}$ ratio & Verdict \\
+\midrule
+20\,wt\%, \SI{298}{\kelvin} & 1.2672 & $1.1732\pm0.0006$ & 1.185 & $-1.00\,\%$ & $1.71\times$ & \textbf{PASS} \\
+20\,wt\%, \SI{333}{\kelvin} & 1.2367 & $1.1484\pm0.0003$ & 1.166 & $-1.51\,\%$ & $1.54\times$ & \textbf{PASS} \\
+30\,wt\%, \SI{298}{\kelvin} & 1.4081 & $1.2667\pm0.0012$ & 1.286 & $-1.50\,\%$ & $3.06\times$ & \textbf{PASS} \\
+30\,wt\%, \SI{333}{\kelvin} & 1.3817 & $1.2425\pm0.0008$ & 1.265 & $-1.78\,\%$ & $2.30\times$ & \textbf{PASS} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth]{../figures/fig6_before_after.pdf}
+\caption{Effect of the change of force field. (a)~Density deviation from experiment; the shaded band
+is the pre-registered $\pm3\,\%$ tolerance, unchanged between the two models. (b)~Water
+self-diffusivity, which was not a criterion but recovers by 1.5--3.1$\times$, most strongly at the
+concentration where the failing model was most over-structured.}
+\label{fig:beforeafter}
+\end{figure}
+
+Two features of the outcome support the diagnosis of Section~\ref{sec:res-ff} rather than merely
+recording a pass.
+
+\textbf{The sign of the error reverses.} The failing model was 6--9\,\% too dense; the adopted model
+is 1.0--1.8\,\% too light. The correction therefore overshoots slightly rather than being tuned to
+land on the target, which is what one expects of parameters taken from independent sources rather
+than fitted to these data.
+
+\textbf{Transport recovers without having been a criterion.} Water self-diffusivity rises by
+$1.71\times$ and $1.54\times$ at 20\,wt\% and by $3.06\times$ and $2.30\times$ at 30\,wt\%. The
+recovery is largest exactly where the failing model was most over-structured. Since diffusivity was
+not gated, this is an independent check rather than a fitted outcome.
+
+\subsection{Residual discrepancies}\label{sec:residual}
+
+Three caveats qualify the pass and are stated rather than left to inference.
+
+\textbf{The hydroxide--water first peak remains short.} Computed from the trajectories now written,
+the first maximum of $g_{\mathrm{OH^-\!-\!O_w}}$ lies at \SI{2.68}{\angstrom} against an
+experimental \SI{2.77}{}--\SI{2.79}{\angstrom}. The failing model was estimated to sit at
+\SI{2.5}{}--\SI{2.6}{\angstrom}, so the adopted parameters move the structure substantially in the
+right direction but remain roughly \SI{0.1}{\angstrom} short.
+
+\textbf{Water may now diffuse slightly too fast.} A Stokes--Einstein estimate from the experimental
+viscosity of 30\,wt\% KOH suggests $D_{\mathrm{H_2O}}\approx6.6\times10^{-10}$\,m$^2$\,s$^{-1}$
+against the $1.20\times10^{-9}$ obtained. The failing model was approximately twice too slow; the
+adopted model is of order 1.8 times too fast. Both residuals point the same way --- slightly
+over-loosened ion--water binding --- so \textbf{the density agreement may be partly compensating},
+and the model should not be used for quantities that depend sensitively on the first hydration shell
+without further checking.
+
+\textbf{The gate is narrower than its stated criteria.} Three criteria were pre-registered: density
+within 3\,\%, $D(\mathrm{H_2O})$ within 30\,\%, $D(\mathrm{K^+})$ within 40\,\%. Only the
+density criterion is implemented as a pass/fail test in the analysis code; the diffusivities are
+computed and reported but not tested, for want of a concentration-resolved experimental reference.
+\textbf{The gate that was passed is therefore a density gate, not the three-part gate described.}
+A revised criterion based on apparent molar volume at three or more concentrations, together with
+the derivatives $\partial\rho/\partial w$ and $\partial\rho/\partial T$, would be
+concentration-neutral and considerably more discriminating; a 3\,\% density tolerance corresponds
+to 62\,\% tolerance on $\phi_V$ at 20\,wt\% but only 31\,\% at 30\,wt\%.
 
 %==========================================================================
 \section{Results: potential-dependent wettability}\label{sec:res-theta}

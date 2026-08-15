@@ -226,3 +226,50 @@ def fig5_ff_development():
 
     fig.tight_layout(); f = os.path.join(FIGDIR, "fig5_ff_development.pdf")
     fig.savefig(f); plt.close(fig); made.append(f); print("fig5 ->", f)
+
+
+def fig6_before_after():
+    """Gate failure -> methodology change -> gate pass. The Paper 1 narrative in one figure."""
+    old = json.load(open(os.path.join(ROOT, "10_md/runs/bulk_koh_REJECTED_FF/bulk_validation.json")))
+    new = json.load(open(os.path.join(ROOT, "10_md/runs/bulk_koh/bulk_validation.json")))
+    O = sorted(old["summary"], key=lambda s: (s["wt"], s["T"]))
+    N = sorted(new["summary"], key=lambda s: (s["wt"], s["T"]))
+    lbl = [f"{s['wt']} wt%\n{s['T']} K" for s in N]
+    x = np.arange(len(N)); w = 0.36
+
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(7.0, 2.95))
+
+    eo = [100*(o["rho_sim"]-o["rho_exp"])/o["rho_exp"] for o in O]
+    en = [100*(n["rho_sim"]-n["rho_exp"])/n["rho_exp"] for n in N]
+    a1.bar(x - w/2, eo, w, color=C_BAD, label="rejected model")
+    a1.bar(x + w/2, en, w, color=C_OK, label="adopted model")
+    a1.axhspan(-3, 3, color=C_OK, alpha=0.13, zorder=0)
+    a1.axhline(0, color="#555", lw=0.7)
+    for xi, v in zip(x - w/2, eo):
+        a1.text(xi, v + 0.35, f"+{v:.1f}", ha="center", fontsize=6.8, color=C_BAD)
+    for xi, v in zip(x + w/2, en):
+        a1.text(xi, v - 1.1, f"{v:.1f}", ha="center", fontsize=6.8, color=C_OK)
+    a1.set_xticks(x); a1.set_xticklabels(lbl, fontsize=7.5)
+    a1.set_ylabel("density deviation from experiment (%)")
+    a1.set_ylim(-4.5, 11.5)
+    a1.text(1.5, -4.0, "pre-registered gate  $\\pm$3%", ha="center", fontsize=7, color=C_OK)
+    a1.set_title("(a) density: FAIL $\\rightarrow$ PASS")
+    a1.legend(frameon=False, fontsize=7.5, loc="upper left")
+
+    do = [o.get("D_water_sim", np.nan)*1e9 for o in O]
+    dn = [n.get("D_water_sim", np.nan)*1e9 for n in N]
+    a2.bar(x - w/2, do, w, color=C_BAD, label="rejected model")
+    a2.bar(x + w/2, dn, w, color=C_OK, label="adopted model")
+    for xi, v0, v1 in zip(x, do, dn):
+        a2.annotate("", xy=(xi + w/2, v1), xytext=(xi - w/2, v0),
+                    arrowprops=dict(arrowstyle="-|>", lw=0.9, color="#555",
+                                    connectionstyle="arc3,rad=-0.25"))
+        a2.text(xi, max(v0, v1) + 0.12, f"{v1/v0:.1f}$\\times$", ha="center", fontsize=6.8, color="#333")
+    a2.set_xticks(x); a2.set_xticklabels(lbl, fontsize=7.5)
+    a2.set_ylabel(r"$D_{\mathrm{H_2O}}$  ($10^{-9}$ m$^2$ s$^{-1}$)")
+    a2.set_ylim(0, 3.9)
+    a2.set_title("(b) transport recovers 1.5--3.1$\\times$")
+    a2.legend(frameon=False, fontsize=7.5, loc="upper left")
+
+    fig.tight_layout(); f = os.path.join(FIGDIR, "fig6_before_after.pdf")
+    fig.savefig(f); plt.close(fig); made.append(f); print("fig6 ->", f)

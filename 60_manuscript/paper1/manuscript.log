@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.5.28)  15 AUG 2026 07:47
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.5.28)  15 AUG 2026 23:46
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -698,7 +698,7 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <7> on input line 239.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <5> on input line 239.
-<../figures/fig1_density_gate.pdf, id=140, 505.89pt x 209.58301pt>
+<../figures/fig1_density_gate.pdf, id=148, 505.89pt x 209.58301pt>
 File: ../figures/fig1_density_gate.pdf Graphic file (type pdf)
 <use ../figures/fig1_density_gate.pdf>
 Package pdftex.def Info: ../figures/fig1_density_gate.pdf  used on input line 2
@@ -715,27 +715,34 @@ Package siunitx Warning: Unit macro \bar has been deprecated in this release.
 (siunitx)                \DeclareSIUnit\bar{bar}
 
 [4]
-<../figures/fig5_ff_development.pdf, id=156, 505.89pt x 213.19649pt>
+<../figures/fig5_ff_development.pdf, id=164, 505.89pt x 213.19649pt>
 File: ../figures/fig5_ff_development.pdf Graphic file (type pdf)
 <use ../figures/fig5_ff_development.pdf>
 Package pdftex.def Info: ../figures/fig5_ff_development.pdf  used on input line
  315.
 (pdftex.def)             Requested size: 460.935pt x 194.25633pt.
  [5 <../figures/fig1_density_gate.pdf>] [6 <../figures/fig5_ff_development.pdf>
-] [7] [8] (./manuscript.aux)
+]
+<../figures/fig6_before_after.pdf, id=318, 505.89pt x 213.19649pt>
+File: ../figures/fig6_before_after.pdf Graphic file (type pdf)
+<use ../figures/fig6_before_after.pdf>
+Package pdftex.def Info: ../figures/fig6_before_after.pdf  used on input line 4
+40.
+(pdftex.def)             Requested size: 460.935pt x 194.25633pt.
+ [7] [8 <../figures/fig6_before_after.pdf>] [9] [10] (./manuscript.aux)
 Package rerunfilecheck Info: File `manuscript.out' has not changed.
-(rerunfilecheck)             Checksum: A97FA983648F9C924279A1FCBD15AC6E;4578.
+(rerunfilecheck)             Checksum: 5701FD1FB359F907AF9658E8AA47C1FA;5200.
  ) 
 Here is how much of TeX's memory you used:
- 18463 strings out of 480171
- 344112 string characters out of 5894489
- 640535 words of memory out of 5000000
- 35817 multiletter control sequences out of 15000+600000
- 586595 words of font info for 238 fonts, out of 8000000 for 9000
+ 18518 strings out of 480171
+ 344967 string characters out of 5894489
+ 643528 words of memory out of 5000000
+ 35834 multiletter control sequences out of 15000+600000
+ 588220 words of font info for 254 fonts, out of 8000000 for 9000
  59 hyphenation exceptions out of 8191
- 71i,13n,92p,1007b,924s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf/fonts/en
-c/dvips/lm/lm-mathsy.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/s
+ 71i,13n,106p,1007b,926s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf/fonts/enc/dv
+ips/lm/lm-mathsy.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/s
 hare/texmf/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm
 -ts1.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathex.enc}</usr/share/texmf/f
 onts/type1/public/lm/lmbx10.pfb></usr/share/texmf/fonts/type1/public/lm/lmbx12.
@@ -744,16 +751,17 @@ pfb></usr/share/texmf/fonts/type1/public/lm/lmcsc10.pfb></usr/share/texmf/fonts
 </usr/share/texmf/fonts/type1/public/lm/lmmi7.pfb></usr/share/texmf/fonts/type1
 /public/lm/lmmi8.pfb></usr/share/texmf/fonts/type1/public/lm/lmr10.pfb></usr/sh
 are/texmf/fonts/type1/public/lm/lmr12.pfb></usr/share/texmf/fonts/type1/public/
-lm/lmr5.pfb></usr/share/texmf/fonts/type1/public/lm/lmr7.pfb></usr/share/texmf/
-fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/lmr9.pfb
-></usr/share/texmf/fonts/type1/public/lm/lmri10.pfb></usr/share/texmf/fonts/typ
-e1/public/lm/lmsy10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy7.pfb></usr
-/share/texmf/fonts/type1/public/lm/lmsy8.pfb></usr/share/texmf/fonts/type1/publ
-ic/lm/lmtt10.pfb>
-Output written on manuscript.pdf (8 pages, 401487 bytes).
+lm/lmr5.pfb></usr/share/texmf/fonts/type1/public/lm/lmr6.pfb></usr/share/texmf/
+fonts/type1/public/lm/lmr7.pfb></usr/share/texmf/fonts/type1/public/lm/lmr8.pfb
+></usr/share/texmf/fonts/type1/public/lm/lmr9.pfb></usr/share/texmf/fonts/type1
+/public/lm/lmri10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/
+share/texmf/fonts/type1/public/lm/lmsy6.pfb></usr/share/texmf/fonts/type1/publi
+c/lm/lmsy7.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy8.pfb></usr/share/te
+xmf/fonts/type1/public/lm/lmtt10.pfb>
+Output written on manuscript.pdf (10 pages, 452710 bytes).
 PDF statistics:
- 447 PDF objects out of 1000 (max. 8388607)
- 280 compressed objects within 3 object streams
- 59 named destinations out of 1000 (max. 500000)
- 66747 words of extra memory for PDF output out of 74296 (max. 10000000)
+ 553 PDF objects out of 1000 (max. 8388607)
+ 320 compressed objects within 4 object streams
+ 66 named destinations out of 1000 (max. 500000)
+ 68816 words of extra memory for PDF output out of 74296 (max. 10000000)
 

@@ -289,3 +289,63 @@ Per MPI rank memory allocation (min/avg/max) = 142.8 | 144.1 | 146 Mbytes
      83000   333.42622     -0.41690551     0.41690551    -148016.51      10957.719    
      84000   329.51904      0.07854966    -0.07854966    -147991.23      11072.5      
      85000   330.60262     -0.054779423    0.054779423   -148222.3       10861.73     
+     86000   333.79022     -0.32834988     0.32834988    -148326.2       11140.216    
+     87000   334.63167     -0.46189359     0.46189359    -148262.76      10711.994    
+     88000   333.99886     -0.44359133     0.44359133    -148100.47      11066.172    
+     89000   332.18473     -0.59055797     0.59055797    -148081.18      10817.743    
+     90000   330.80671     -0.1399421      0.1399421     -148050.62      10931.36     
+Loop time of 10845.1 on 4 procs for 25000 steps with 19487 atoms
+
+Performance: 0.398 ns/day, 60.250 hours/ns, 2.305 timesteps/s, 44.921 katom-step/s
+62.9% CPU use with 4 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 1587.6     | 1786.4     | 2069.8     | 419.8 | 16.47
+Bond    | 0.18017    | 0.2176     | 0.27687    |   8.0 |  0.00
+Kspace  | 3040.8     | 3326.2     | 3528.3     | 310.6 | 30.67
+Neigh   | 366.35     | 367.18     | 367.73     |   2.8 |  3.39
+Comm    | 340.13     | 347.15     | 350.05     |  21.8 |  3.20
+Output  | 0.40061    | 0.4146     | 0.43563    |   2.3 |  0.00
+Modify  | 4936       | 4939.8     | 4944.3     |   4.3 | 45.55
+Other   |            | 77.71      |            |       |  0.72
+
+Nlocal:        4871.75 ave        5454 max        4440 min
+Histogram: 1 0 1 0 1 0 0 0 0 1
+Nghost:        14343.5 ave       14981 max       13462 min
+Histogram: 1 0 0 0 0 0 2 0 0 1
+Neighs:    1.44876e+06 ave 1.68384e+06 max 1.28565e+06 min
+Histogram: 1 0 1 1 0 0 0 0 0 1
+
+Total # of neighbors = 5795051
+Ave neighs/atom = 297.38036
+Ave special neighs/atom = 1.4126341
+Neighbor list builds = 2719
+Dangerous builds = 0
+PPPM/electrode initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.25781961
+  grid = 36 18 120
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.031008622
+  estimated relative force accuracy = 9.3381546e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 42700 19440
+Generated 21 of 21 mixed pair_coeff terms from geometric mixing rule
+Setting up Verlet run ...
+  Unit style    : real
+  Current step  : 0
+  Time step     : 2
+Per MPI rank memory allocation (min/avg/max) = 145.5 | 146.9 | 148.7 Mbytes
+   Step         c_tmob         c_sqb          c_sqt          PotEng         Press     
+         0   330.80671     -0.1399421      0.1399421     -148050.62      10931.317    
+      5000   334.44804     -0.28235471     0.28235471    -148154.69      10988.765    
+     10000   335.13564     -0.064080133    0.064080133   -147940.28      10877.264    
+     15000   334.54076     -0.16686698     0.16686698    -147985.01      11153.321    
+     20000   333.68522      0.11647692    -0.11647692    -148168.22      11096.729    
+     25000   330.92162      0.059114108   -0.059114108   -148098.01      11079.358    
+     30000   335.89353     -0.40431523     0.40431523    -148091.07      11116.237    
+     35000   335.51364     -0.094117274    0.094117274   -147884.08      10940.531    
+     40000   333.48765     -0.34974786     0.34974786    -148127.37      11115.546    
+     45000   331.33009     -0.34248979     0.34248979    -148248.86      11043.149    

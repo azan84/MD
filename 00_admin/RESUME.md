@@ -1,5 +1,8 @@
 # RESUME CHECKPOINT — T12 rev B
-**Written 2026-08-15. Read this file first on resume, then `STATE.json`, then `STATUS.md`.**
+**Written 2026-08-15, updated at pause. Read this file first on resume, then `STATE.json`, then `STATUS.md`.**
+
+> **PAUSED BY OPERATOR.** Both manuscripts are current and reflect the gate failure *and* its
+> resolution. Background jobs were left running deliberately — see §2.
 
 ---
 
@@ -66,9 +69,9 @@ concurrent.
 
 | Artefact | Status |
 |---|---|
-| `60_manuscript/paper1/manuscript.{tex,pdf}` | **Drafted, 8 pp.** Intro/Theory/Methods complete; §4 force-field results COMPLETE with real data; §5 wettability PENDING |
-| `60_manuscript/paper2/manuscript.{tex,pdf}` | **Drafted, 11 pp.** Intro/Theory/Methods complete; §4.1 gate results real; rest PENDING |
-| `60_manuscript/figures/` | fig1 density gate, fig2 transport, fig3 σ-scan, fig4 pipeline, fig5 FF development — **all from real data** |
+| `60_manuscript/paper1/manuscript.{tex,pdf}` | **Drafted, 10 pp.** Intro/Theory/Methods complete; §4 force-field results COMPLETE including §4.5 "What changed between the failing and passing models", §4.6 re-validation, §4.7 residual discrepancies; §5 wettability PENDING. Copy at `~/T12_paper1_draft.pdf` |
+| `60_manuscript/paper2/manuscript.{tex,pdf}` | **Drafted, 11 pp.** §4.1 now reports the gate failure *and its resolution*, citing Paper 1 for the full account. Copy at `~/T12_paper2_draft.pdf` |
+| `60_manuscript/figures/` | fig1 density gate, fig2 transport, fig3 σ-scan, fig4 pipeline, fig5 FF development, fig6 before/after — **all from real data** |
 | Force field | **SETTLED** — see §5 |
 | θ campaign | Blocked on box convergence (running) |
 | VOF / cell stages (S-B, S-C) | Not started |

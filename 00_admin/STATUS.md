@@ -72,3 +72,15 @@ Running log. One line per action. Newest at the bottom of each phase block.
 - 2026-08-15 · **3 box-convergence jobs left RUNNING** (nohup, 4 ranks each, 12 cores). They survive session end. L8 at step 85k, L12 at 71k, L16 at 64k of 590k. ETA 1.0/1.6/2.1 days.
 - 2026-08-15 · Disk 58 GB free (stop threshold 40 GB). Working tree committed.
 - 2026-08-15 · **Resume by reading `00_admin/RESUME.md` first.**
+
+## Reports updated, then PAUSED by operator — 2026-08-15
+
+- 2026-08-15 · **Paper 1 expanded 8 → 10 pp** with the full gate-failure-to-pass record:
+  - **§4.5 "What changed between the failing and passing models"** — a 5-row table of *every* methodological change, stating explicitly that only change 1 (hydroxide/potassium parameters + ECC charge scaling) is responsible for the pass.
+  - Three changes annotated because they are easy to misread: the K⁺ unit error was ours and moves density the *unfavourable* way; the finite-size correction altered reported diffusivities but no verdict; **the reference-data correction made the failure larger, not smaller** — and the tolerance was never adjusted.
+  - **§4.6 Re-validation**: all four state points PASS at 1.00/1.51/1.50/1.78%, with the rejected model shown alongside.
+  - **§4.7 Residual discrepancies**: OH⁻–water peak still 0.1 Å short; D(H₂O) may now be ~1.8× too fast; and the gate is a density gate only, the diffusivity criteria never having been implemented.
+  - Two independent supports for the diagnosis recorded: the error *sign reverses* (over-dense → slightly light), showing parameters were not tuned to the target; and transport recovers 1.5–3.1× despite not being a criterion.
+- 2026-08-15 · **New figure fig6**: density FAIL→PASS and the transport recovery, side by side.
+- 2026-08-15 · **Paper 2 §4.1 updated** — previously reported the gate failure as standing. Now reports failure *and* resolution, citing Paper 1 for the full account.
+- 2026-08-15 · **PAUSED.** 3 box-convergence jobs deliberately left running under `nohup`; they survive session end. Resume via `00_admin/RESUME.md`.
