@@ -1,0 +1,117 @@
+LAMMPS (22 Jul 2025 - Update 5)
+  using 1 OpenMP thread(s) per MPI task
+# ============================================================================
+# MD-3xx : contact angle theta(dPsi) on Ni(111) in KOH  --  PRIMARY CAMPAIGN
+#
+# Gated behind the bulk KOH validation gate, which PASSED with the adopted
+# force field (density 1.0-1.8% at all four state points).
+#
+# Types: 1=Ow 2=Hw 3=K+ 4=OH- 5=Ni_bot(cathode) 6=Ni_top(anode) 7=H2
+#
+# Usage: lmp -in in.theta -var data <file> -var dpsi <V> -var seed <n> -var tag <name>
+# ============================================================================
+variable        data   index data.iface_L12
+variable        T      index 333.0
+variable        dpsi   index 0.0
+variable        seed   index 12345
+variable        tag    index th_L12_d0.0_s1
+variable        qion   index 0.8        # ECC scaling, as adopted (D3.12)
+
+units           real
+atom_style      full
+boundary        p p f
+processors      * * 1
+
+read_data       ${data}
+read_data       data.iface_L8
+Reading data file ...
+  orthogonal box = (0 0 0) to (80 30 116.47666)
+  4 by 1 by 1 MPI processor grid
+  reading atoms ...
+  19487 atoms
+  scanning bonds ...
+  2 = max bonds/atom
+  scanning angles ...
+  1 = max angles/atom
+  orthogonal box = (0 0 0) to (80 30 116.47666)
+  4 by 1 by 1 MPI processor grid
+  reading bonds ...
+  9176 bonds
+  reading angles ...
+  4588 angles
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0        0        0       
+  special bond factors coul:  0        0        0       
+     2 = max # of 1-2 neighbors
+     1 = max # of 1-3 neighbors
+     1 = max # of 1-4 neighbors
+     2 = max # of special neighbors
+  special bonds CPU = 0.258 seconds
+  read_data CPU = 0.988 seconds
+
+# ---- ADOPTED force field (gate-validated) -----------------------------------
+pair_style      lj/cut/coul/long 10.0 10.0
+pair_modify     mix geometric              # NO tail correction: invalid for a slab
+kspace_style    pppm/electrode 1.0e-4   # 2.13x faster than 1e-5, measured; standard for structure
+kspace_modify   slab 3.0
+
+pair_coeff      1 1 0.15530 3.16600        # SPC/E O
+pair_coeff      2 2 0.00000 0.00000        # SPC/E H
+pair_coeff      3 3 0.21510 2.83000        # K+  Loche
+pair_coeff      4 4 0.01195 3.81000        # OH- Bonthuis
+pair_coeff      5 5 0.20750 2.48340        # Ni  [verify]
+pair_coeff      6 6 0.20750 2.48340        # Ni
+pair_coeff      7 7 0.07210 2.95800        # H2 united atom  [verify]
+
+set             type 3 charge  ${qion}
+set             type 3 charge  0.8
+Setting atom values ...
+  776 settings made for charge
+set             type 4 charge -${qion}
+set             type 4 charge -0.8
+Setting atom values ...
+  776 settings made for charge
+set             type 5 charge  0.0
+Setting atom values ...
+  1920 settings made for charge
+set             type 6 charge  0.0
+Setting atom values ...
+  1920 settings made for charge
+set             type 7 charge  0.0
+Setting atom values ...
+  331 settings made for charge
+
+bond_style      harmonic
+bond_coeff      1 1000.0 1.0
+angle_style     harmonic
+angle_coeff     1 100.0 109.47
+
+group           watr  type 1 2
+13764 atoms in group watr
+group           liq   type 1 2 3 4
+15316 atoms in group liq
+group           gas   type 7
+331 atoms in group gas
+group           mobile type 1 2 3 4 7
+15647 atoms in group mobile
+group           bot   type 5
+1920 atoms in group bot
+group           top   type 6
+1920 atoms in group top
+group           elec  union bot top
+3840 atoms in group elec
+
+neighbor        2.0 bin
+# NO `exclude group elec elec`: fix electrode/conp builds its elastance matrix from
+# electrode-electrode interactions, and LAMMPS warns that neighbour exclusions with a
+# KSpace solver give inconsistent Coulombic energies. The ELECTRODE reference case that
+# this build was verified against bitwise does NOT use the exclusion either. (D3.17)
+neigh_modify    delay 0 every 1 check yes
+
+fix             shk watr shake 1.0e-5 200 0 b 1 a 1
+Finding SHAKE clusters ...
+       0 = # of size 2 clusters
+       0 = # of size 3 clusters
+       0 = # of size 4 clusters
+    4588 = # of frozen angles
+  find cl

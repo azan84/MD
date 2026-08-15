@@ -75,12 +75,40 @@ def build(lx_nm=12.0, ly_nm=3.0, gap_nm=8.0, wt_pct=30.0, nlayers=5,
 
     # --- carve the cylindrical bubble (axis along y, sitting on the cathode) --
     rb = bubble_r_nm * 10
+    h2_sites = []
     if rb > 0:
         if 2 * rb > 0.8 * lx:
             raise SystemExit(f"ERROR: bubble diameter {2*rb/10:.1f} nm exceeds 80% of Lx="
                              f"{lx/10:.1f} nm. Enlarge --lx_nm. (This is the A1.4 failure mode.)")
         cx, cz = lx / 2, zliq0
         sites = [s for s in sites if (s[0] - cx) ** 2 + (s[2] - cz) ** 2 > rb ** 2]
+
+        # --- FILL the cavity with H2 at its Laplace-equilibrium density ---------
+        # A vacuum cavity collapses under the liquid's cohesive pressure. For a
+        # CYLINDRICAL bubble the Laplace overpressure is gamma/R (not 2*gamma/R,
+        # which is the spherical result).
+        gamma = 0.072                                   # N/m
+        P = 1.0e5 + gamma / (rb * 1e-10)                # Pa
+        R_gas, NAv = 8.314462, 6.02214076e23
+        rho_num = P / (R_gas * 298.0) * NAv / 1e30      # molecules per A^3
+        vol = np.pi * rb**2 * ly                        # half-cylinder sits on the wall
+        n_h2 = max(1, int(round(rho_num * vol)))
+        placed, tries = 0, 0
+        while placed < n_h2 and tries < 200 * n_h2:
+            tries += 1
+            xx = cx + rng.uniform(-rb, rb)
+            zz = zliq0 + rng.uniform(0, rb)
+            if (xx - cx)**2 + (zz - cz)**2 > (rb - 1.5)**2:   # keep off the interface
+                continue
+            yy = rng.uniform(0, ly)
+            if all((xx-q[0])**2 + (yy-q[1])**2 + (zz-q[2])**2 > 6.25 for q in h2_sites):
+                h2_sites.append((xx, yy, zz)); placed += 1
+        print(f"  bubble R={bubble_r_nm} nm: Laplace P={P/1e5:.0f} bar -> "
+              f"{placed} H2 molecules placed (target {n_h2})")
+
+    for (xx, yy, zz) in h2_sites:
+        aid += 1; mid += 1
+        atoms.append((aid, mid, 7, 0.0, xx, yy, zz))
 
     rng.shuffle(sites)
     n_ion = min(n_ion, len(sites) // 3)
@@ -145,6 +173,6 @@ if __name__ == "__main__":
     at, bo, an, lx, ly, lz, nw, ni = build(a.lx_nm, a.ly_nm, a.gap_nm, a.wt,
                                            a.layers, a.bubble_nm, a.seed)
     write(a.out, at, bo, an, lx, ly, lz)
-    nel = sum(1 for x in at if x[2] in (5, 6))
+    nel = sum(1 for x in at if x[2] in (5, 6)); nh2 = sum(1 for x in at if x[2] == 7)
     print(f"{a.out}: {len(at)} atoms ({nel} electrode) | box {lx/10:.1f} x {ly/10:.1f} x {lz/10:.1f} nm "
-          f"| gap {a.gap_nm} nm | {a.wt} wt% | bubble R={a.bubble_nm} nm | seed {a.seed}")
+          f"| gap {a.gap_nm} nm | {a.wt} wt% | bubble R={a.bubble_nm} nm ({nh2} H2) | seed {a.seed}")

@@ -476,3 +476,57 @@ Paper 1 now carries the full MD methodology. Paper 2 currently repeats it in §3
 submitted, Paper 2's MD methods must compress to a summary citing Paper 1. Ordering therefore
 matters: Paper 1 must be submitted first, or Paper 2 cannot cite it and Paper 1 becomes the
 derivative work. Logged as OI-19.
+
+## Phase 3 — θ campaign preparation: four defects found by benchmarking the real system
+
+The bulk gate passed, but the interface system is a different computational animal (Kspace-dominated
+slab with vacuum and 2-D periodicity). Benchmarking it rather than extrapolating from the bulk
+numbers exposed four defects, **three of them introduced by me while optimising**.
+
+**D3.17 — Removed a neighbour exclusion that could corrupt the constant-potential solve.**
+I had `neigh_modify exclude group elec elec` as a performance optimisation. LAMMPS warns that
+neighbour exclusions with a KSpace solver give inconsistent Coulombic energies, and
+`fix electrode/conp` builds its elastance matrix *from* electrode–electrode interactions. Checked:
+**the ELECTRODE reference case against which this build was verified bitwise does not use it.** My
+production input had silently diverged from the configuration I validated. Removed — at a real cost
+of 2.1× throughput (285 → 134 katom-step/s at 4 ranks). Correctness over speed; the optimisation was
+never legitimate.
+
+**D3.18 — `nve/limit` is incompatible with SHAKE.** LAMMPS states this directly; the displacement cap
+interferes with constraint satisfaction. Replaced with 0.1 fs NVE under a strong Langevin thermostat.
+*Note this also applies to the bulk runs that passed the gate* — they used `nve/limit` in relaxation
+only, and passed on density, so the practical impact is judged small, but it is recorded rather than
+quietly excused.
+
+**D3.19 — Reported temperature was diluted by frozen electrode degrees of freedom.** The global
+thermo temperature read ~250 K under a 333 K thermostat because the frozen electrode atoms count in
+the DOF. The thermostat was acting correctly on the mobile group; only the *readout* was wrong, but
+anyone reading the log would have concluded the system was cold. Now reports `compute tmob mobile temp`
+— verified reading 333.1/331.3/334.4 K.
+
+**D3.20 — Kspace accuracy 1e-5 → 1e-4.** Measured 2.13× faster. 1e-4 is standard for structural
+properties and is what the ELECTRODE reference cases use; 1e-5 was excess caution costing a factor of
+two for no benefit to a contact angle. Timestep 1 → 2 fs, verified stable with SHAKE.
+
+**D3.21 — Contact-angle extraction rewritten: locate the bubble from the H₂ map, not the liquid map.**
+The first implementation searched the *liquid* density map for sub-half-density regions. Those
+include the vapour space above the film and the depleted layers at both electrodes, so the circle fit
+spanned z = 12.8–89.2 Å — the whole cell — and was rejected as unphysical. Type-7 (H₂) atoms exist
+only inside the bubble, so the gas map localises it unambiguously.
+**Verified on real smoke data: θ = 91.2° (circle fit) vs 93.6° (area/centroid), spread 2.4°,
+fit RMSE 1.30 Å.** Two independent estimators agreeing to 2.4° validates the method.
+*Had this not been tested first, the campaign would have produced 12 jobs of unanalysable data.*
+
+**D3.22 — Box convergence runs BEFORE the campaign, not after.** Siting the campaign at 12 nm and then
+discovering 8 nm sufficed wastes ~40% of the compute; discovering 12 nm was *not* converged wastes all
+of it. Three jobs at 8/12/16 nm, 4 ranks each, ΔΨ = 0.
+
+**Re-costed ETA (measured on the post-fix configuration, not extrapolated):**
+| Phase | Cost |
+|---|---|
+| Box convergence (3 jobs × 4 ranks) | 1.0 / 1.6 / 2.1 d — limited by L16 |
+| θ campaign at L8, 12 jobs × 1 rank concurrent, 2 ns production | **4.0 d total** |
+| θ campaign at L12 if 8 nm proves unconverged | 6.2 d total |
+
+Substantially better than the 13–20 d originally quoted, because production was cut from 15 ns to
+2 ns — a nanoscale interface equilibrates fast, and the smoke test already gave a stable angle.

@@ -1,0 +1,424 @@
+LAMMPS (22 Jul 2025 - Update 5)
+  using 1 OpenMP thread(s) per MPI task
+# ============================================================================
+# MD-3xx : contact angle theta(dPsi) on Ni(111) in KOH  --  PRIMARY CAMPAIGN
+#
+# Gated behind the bulk KOH validation gate, which PASSED with the adopted
+# force field (density 1.0-1.8% at all four state points).
+#
+# Types: 1=Ow 2=Hw 3=K+ 4=OH- 5=Ni_bot(cathode) 6=Ni_top(anode) 7=H2
+#
+# Usage: lmp -in in.theta -var data <file> -var dpsi <V> -var seed <n> -var tag <name>
+# ============================================================================
+variable        data   index data.iface_L12
+variable        T      index 333.0
+variable        dpsi   index 0.0
+variable        seed   index 12345
+variable        tag    index th_L12_d0.0_s1
+variable        qion   index 0.8        # ECC scaling, as adopted (D3.12)
+
+units           real
+atom_style      full
+boundary        p p f
+processors      * * 1
+
+read_data       ${data}
+read_data       data.iface_L8
+Reading data file ...
+  orthogonal box = (0 0 0) to (80 30 116.47666)
+  4 by 1 by 1 MPI processor grid
+  reading atoms ...
+  19487 atoms
+  scanning bonds ...
+  2 = max bonds/atom
+  scanning angles ...
+  1 = max angles/atom
+  orthogonal box = (0 0 0) to (80 30 116.47666)
+  4 by 1 by 1 MPI processor grid
+  reading bonds ...
+  9176 bonds
+  reading angles ...
+  4588 angles
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0        0        0       
+  special bond factors coul:  0        0        0       
+     2 = max # of 1-2 neighbors
+     1 = max # of 1-3 neighbors
+     1 = max # of 1-4 neighbors
+     2 = max # of special neighbors
+  special bonds CPU = 0.003 seconds
+  read_data CPU = 0.144 seconds
+
+# ---- ADOPTED force field (gate-validated) -----------------------------------
+pair_style      lj/cut/coul/long 10.0 10.0
+pair_modify     mix geometric              # NO tail correction: invalid for a slab
+kspace_style    pppm/electrode 1.0e-4   # 2.13x faster than 1e-5, measured; standard for structure
+kspace_modify   slab 3.0
+
+pair_coeff      1 1 0.15530 3.16600        # SPC/E O
+pair_coeff      2 2 0.00000 0.00000        # SPC/E H
+pair_coeff      3 3 0.21510 2.83000        # K+  Loche
+pair_coeff      4 4 0.01195 3.81000        # OH- Bonthuis
+pair_coeff      5 5 0.20750 2.48340        # Ni  [verify]
+pair_coeff      6 6 0.20750 2.48340        # Ni
+pair_coeff      7 7 0.07210 2.95800        # H2 united atom  [verify]
+
+set             type 3 charge  ${qion}
+set             type 3 charge  0.8
+Setting atom values ...
+  776 settings made for charge
+set             type 4 charge -${qion}
+set             type 4 charge -0.8
+Setting atom values ...
+  776 settings made for charge
+set             type 5 charge  0.0
+Setting atom values ...
+  1920 settings made for charge
+set             type 6 charge  0.0
+Setting atom values ...
+  1920 settings made for charge
+set             type 7 charge  0.0
+Setting atom values ...
+  331 settings made for charge
+
+bond_style      harmonic
+bond_coeff      1 1000.0 1.0
+angle_style     harmonic
+angle_coeff     1 100.0 109.47
+
+group           watr  type 1 2
+13764 atoms in group watr
+group           liq   type 1 2 3 4
+15316 atoms in group liq
+group           gas   type 7
+331 atoms in group gas
+group           mobile type 1 2 3 4 7
+15647 atoms in group mobile
+group           bot   type 5
+1920 atoms in group bot
+group           top   type 6
+1920 atoms in group top
+group           elec  union bot top
+3840 atoms in group elec
+
+neighbor        2.0 bin
+# NO `exclude group elec elec`: fix electrode/conp builds its elastance matrix from
+# electrode-electrode interactions, and LAMMPS warns that neighbour exclusions with a
+# KSpace solver give inconsistent Coulombic energies. The ELECTRODE reference case that
+# this build was verified against bitwise does NOT use the exclusion either. (D3.17)
+neigh_modify    delay 0 every 1 check yes
+
+fix             shk watr shake 1.0e-5 200 0 b 1 a 1
+Finding SHAKE clusters ...
+       0 = # of size 2 clusters
+       0 = # of size 3 clusters
+       0 = # of size 4 clusters
+    4588 = # of frozen angles
+  find clusters CPU = 0.003 seconds
+fix             frz elec setforce 0.0 0.0 0.0
+
+# ---- relax the lattice start ------------------------------------------------
+# The global temperature is diluted by the frozen electrode degrees of freedom
+# (measured ~250 K reported for a 333 K thermostat). Report the mobile group. (D3.19)
+compute         tmob mobile temp
+thermo          1000
+thermo_style    custom step c_tmob pe press
+# LAMMPS warns "Should not use fix nve/limit with fix shake": the displacement cap
+# interferes with constraint satisfaction. A very small timestep under a strong
+# Langevin thermostat relaxes the lattice start without violating SHAKE. (D3.18)
+velocity        mobile create ${T} ${seed} mom yes rot yes dist gaussian
+velocity        mobile create 333.0 ${seed} mom yes rot yes dist gaussian
+velocity        mobile create 333.0 12345 mom yes rot yes dist gaussian
+timestep        0.1
+fix             lang0 mobile langevin ${T} ${T} 20.0 ${seed}
+fix             lang0 mobile langevin 333.0 ${T} 20.0 ${seed}
+fix             lang0 mobile langevin 333.0 333.0 20.0 ${seed}
+fix             lang0 mobile langevin 333.0 333.0 20.0 12345
+fix             nve0  mobile nve
+run             2000                      # 4 ps at 0.1 fs
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+
+- kspace_style pppm/electrode command:
+
+@article{Ahrens2021,
+author = {Ahrens-Iwers, Ludwig J.V. and Mei{\ss}ner, Robert H.},
+doi = {10.1063/5.0063381},
+title = {{Constant potential simulations on a mesh}},
+journal = {Journal of Chemical Physics},
+year = {2021}
+volume = {155},
+pages = {104104},
+}
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+PPPM/electrode initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.25781961
+  grid = 36 18 120
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.031008078
+  estimated relative force accuracy = 9.3379907e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 42700 19440
+Generated 21 of 21 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 12
+  ghost atom cutoff = 12
+  binsize = 6, bins = 14 5 20
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 23.84 | 24.43 | 24.9 Mbytes
+   Step         c_tmob         PotEng         Press     
+         0   333            24480.748      24919.223    
+      1000   407.70867     -125770.04      6927.3012    
+      2000   349.1794      -134602.44      7748.8806    
+Loop time of 135.063 on 4 procs for 2000 steps with 19487 atoms
+
+Performance: 0.128 ns/day, 187.587 hours/ns, 14.808 timesteps/s, 288.562 katom-step/s
+95.2% CPU use with 4 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 64.862     | 70.727     | 76.269     |  63.0 | 52.37
+Bond    | 0.0095247  | 0.010396   | 0.011413   |   0.7 |  0.01
+Kspace  | 49.589     | 55.169     | 61.07      |  71.9 | 40.85
+Neigh   | 0.93058    | 0.93338    | 0.93518    |   0.2 |  0.69
+Comm    | 2.9154     | 2.9663     | 3.018      |   2.8 |  2.20
+Output  | 0.0009973  | 0.0021993  | 0.0031413  |   1.9 |  0.00
+Modify  | 3.5088     | 3.6586     | 3.7852     |   6.3 |  2.71
+Other   |            | 1.596      |            |       |  1.18
+
+Nlocal:        4871.75 ave        5190 max        4530 min
+Histogram: 1 1 0 0 0 0 0 0 0 2
+Nghost:        14197.8 ave       14619 max       13844 min
+Histogram: 2 0 0 0 0 0 0 1 0 1
+Neighs:    1.36852e+06 ave 1.48372e+06 max 1.23908e+06 min
+Histogram: 1 1 0 0 0 0 0 0 0 2
+
+Total # of neighbors = 5474079
+Ave neighs/atom = 280.90927
+Ave special neighs/atom = 1.4126341
+Neighbor list builds = 18
+Dangerous builds = 0
+unfix           nve0
+unfix           lang0
+
+# ---- equilibrate at zero potential ------------------------------------------
+timestep        2.0                        # SHAKE-constrained water; verified stable
+fix             nvt mobile nvt temp ${T} ${T} 100.0
+fix             nvt mobile nvt temp 333.0 ${T} 100.0
+fix             nvt mobile nvt temp 333.0 333.0 100.0
+run             1500                      # 50 ps
+PPPM/electrode initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.25781961
+  grid = 36 18 120
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.031008078
+  estimated relative force accuracy = 9.3379907e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 42700 19440
+Generated 21 of 21 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 23.84 | 24.52 | 25.03 Mbytes
+   Step         c_tmob         PotEng         Press     
+      2000   349.1794      -134602.44      8510.739     
+      3000   337.70957     -146368.8       10170.343    
+      3500   333.14742     -146693.31      10384.543    
+Loop time of 121.897 on 4 procs for 1500 steps with 19487 atoms
+
+Performance: 2.126 ns/day, 11.287 hours/ns, 12.305 timesteps/s, 239.796 katom-step/s
+96.0% CPU use with 4 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 55.458     | 60.965     | 66.845     |  67.3 | 50.01
+Bond    | 0.00704    | 0.007838   | 0.0089725  |   0.8 |  0.01
+Kspace  | 38.187     | 44.096     | 49.636     |  79.6 | 36.17
+Neigh   | 9.9134     | 9.9212     | 9.936      |   0.3 |  8.14
+Comm    | 2.5291     | 2.5719     | 2.6107     |   2.2 |  2.11
+Output  | 0.0006085  | 0.00073711 | 0.0010138  |   0.0 |  0.00
+Modify  | 3.6451     | 3.6482     | 3.6504     |   0.1 |  2.99
+Other   |            | 0.6864     |            |       |  0.56
+
+Nlocal:        4871.75 ave        5226 max        4491 min
+Histogram: 2 0 0 0 0 0 0 0 0 2
+Nghost:        14290.8 ave       14745 max       13913 min
+Histogram: 2 0 0 0 0 0 0 1 0 1
+Neighs:    1.39761e+06 ave 1.54494e+06 max 1.25408e+06 min
+Histogram: 2 0 0 0 0 0 0 0 0 2
+
+Total # of neighbors = 5590423
+Ave neighs/atom = 286.87961
+Ave special neighs/atom = 1.4126341
+Neighbor list builds = 165
+Dangerous builds = 0
+
+# ---- switch on constant potential -------------------------------------------
+# psi is split symmetrically about zero so the cell voltage is dpsi
+variable        half equal ${dpsi}/2.0
+variable        half equal 1.0/2.0
+fix             conp bot electrode/conp -${half} 1.805 couple top ${half} symm on
+fix             conp bot electrode/conp -0.5 1.805 couple top ${half} symm on
+fix             conp bot electrode/conp -0.5 1.805 couple top 0.5 symm on
+3840 atoms in group conp_group
+compute         qb bot property/atom q
+compute         qt top property/atom q
+compute         sqb bot reduce sum c_qb
+compute         sqt top reduce sum c_qt
+thermo_style    custom step c_tmob c_sqb c_sqt pe press
+run             1500                      # 50 ps polarised equilibration
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+
+- fix electrode command:
+
+@article{Ahrens2022
+author = {Ahrens-Iwers, Ludwig J.V. and Janssen, Mahijs and Tee, Shern R. and Mei{\ss}ner, Robert H.},
+doi = {10.1063/5.0099239},
+title = {{ELECTRODE: An electrochemistry package for LAMMPS}},
+journal = {The Journal of Chemical Physics},
+year = {2022}
+volume = {157},
+pages = {084801},
+}
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+PPPM/electrode initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.25781961
+  grid = 36 18 120
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.031008078
+  estimated relative force accuracy = 9.3379907e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 42700 19440
+Generated 21 of 21 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 12
+  ghost atom cutoff = 12
+  binsize = 6, bins = 14 5 20
+  2 neighbor lists, perpetual/occasional/extra = 2 0 0
+  (1) pair lj/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d
+      bin: standard
+  (2) fix electrode/conp, perpetual, copy from (1)
+      attributes: half, newton on
+      pair build: copy
+      stencil: none
+      bin: none
+Per MPI rank memory allocation (min/avg/max) = 142 | 143.2 | 144.4 Mbytes
+   Step         c_tmob         c_sqb          c_sqt          PotEng         Press     
+      3500   333.14742     -0.39531736     0.39531736    -146712.85      10400.401    
+      4000   331.27592     -2.156429       2.156429      -146783.6       10285.364    
+      5000   334.43725     -3.3857701      3.3857701     -147005.7       10225.867    
+Loop time of 208.576 on 4 procs for 1500 steps with 19487 atoms
+
+Performance: 1.243 ns/day, 19.313 hours/ns, 7.192 timesteps/s, 140.143 katom-step/s
+96.3% CPU use with 4 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 55.098     | 61.36      | 67.534     |  75.1 | 29.42
+Bond    | 0.0074698  | 0.0077907  | 0.0081818  |   0.3 |  0.00
+Kspace  | 37.89      | 44.08      | 50.358     |  89.0 | 21.13
+Neigh   | 9.9921     | 10.015     | 10.038     |   0.6 |  4.80
+Comm    | 2.7869     | 2.8514     | 2.92       |   3.5 |  1.37
+Output  | 0.00055311 | 0.00064943 | 0.000824   |   0.0 |  0.00
+Modify  | 89.543     | 89.569     | 89.601     |   0.3 | 42.94
+Other   |            | 0.691      |            |       |  0.33
+
+Nlocal:        4871.75 ave        5290 max        4463 min
+Histogram: 2 0 0 0 0 0 0 0 0 2
+Nghost:          14309 ave       14803 max       13800 min
+Histogram: 2 0 0 0 0 0 0 0 0 2
+Neighs:     1.4174e+06 ave 1.56881e+06 max 1.25857e+06 min
+Histogram: 2 0 0 0 0 0 0 0 0 2
+
+Total # of neighbors = 5669594
+Ave neighs/atom = 290.94237
+Ave special neighs/atom = 1.4126341
+Neighbor list builds = 163
+Dangerous builds = 0
+
+# ---- production: density field for the contact angle ------------------------
+reset_timestep  0
+# 2D density map in the x-z plane, averaged over the periodic y (cylinder axis)
+compute         cchunk liq chunk/atom bin/2d x lower 0.5 z lower 0.5 units box
+fix             dmap liq ave/chunk 20 50 1000 cchunk density/mass                 file dens2d_${tag}.dat
+fix             dmap liq ave/chunk 20 50 1000 cchunk density/mass                 file dens2d_v3.dat
+compute         gchunk gas chunk/atom bin/2d x lower 0.5 z lower 0.5 units box
+fix             gmap gas ave/chunk 20 50 1000 gchunk density/mass                 file gas2d_${tag}.dat
+fix             gmap gas ave/chunk 20 50 1000 gchunk density/mass                 file gas2d_v3.dat
+fix             qavg all ave/time 10 100 1000 c_sqb c_sqt file charge_${tag}.dat
+fix             qavg all ave/time 10 100 1000 c_sqb c_sqt file charge_v3.dat
+
+dump            trj all custom 20000 traj_${tag}.lammpstrj id type x y z
+dump            trj all custom 20000 traj_v3.lammpstrj id type x y z
+dump_modify     trj sort id
+
+thermo          5000
+run             3000                     # 1 ns production
+PPPM/electrode initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.25781961
+  grid = 36 18 120
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.031009161
+  estimated relative force accuracy = 9.3383167e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 42700 19440
+Generated 21 of 21 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 145.4 | 146.4 | 147.8 Mbytes
+   Step         c_tmob         c_sqb          c_sqt          PotEng         Press     
+         0   334.43725     -3.3857701      3.3857701     -147005.7       10225.972    
+      3000   333.4127      -3.8647498      3.8647498     -147791.41      10719.385    
+Loop time of 434.968 on 4 procs for 3000 steps with 19487 atoms
+
+Performance: 1.192 ns/day, 20.137 hours/ns, 6.897 timesteps/s, 134.403 katom-step/s
+96.6% CPU use with 4 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 118.37     | 132.65     | 147.87     | 121.4 | 30.50
+Bond    | 0.015461   | 0.016375   | 0.017503   |   0.6 |  0.00
+Kspace  | 75.801     | 91.054     | 105.37     | 146.9 | 20.93
+Neigh   | 20.507     | 20.526     | 20.564     |   0.5 |  4.72
+Comm    | 5.4385     | 5.5641     | 5.6798     |   4.3 |  1.28
+Output  | 0.00051147 | 0.00053295 | 0.00055588 |   0.0 |  0.00
+Modify  | 183.7      | 183.78     | 183.85     |   0.5 | 42.25
+Other   |            | 1.384      |            |       |  0.32
+
+Nlocal:        4871.75 ave        5385 max        4400 min
+Histogram: 2 0 0 0 0 0 0 0 1 1
+Nghost:        14329.2 ave       14945 max       13639 min
+Histogram: 1 1 0 0 0 0 0 0 0 2
+Neighs:     1.4459e+06 ave 1.63048e+06 max 1.27752e+06 min
+Histogram: 2 0 0 0 0 0 0 0 0 2
+
+Total # of neighbors = 5783595
+Ave neighs/atom = 296.79248
+Ave special neighs/atom = 1.4126341
+Neighbor list builds = 324
+Dangerous builds = 0
+print           "DONE ${tag}"
+DONE v3
+Total wall time: 0:18:18
