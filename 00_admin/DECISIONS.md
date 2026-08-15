@@ -550,3 +550,24 @@ entirely downstream.
 
 **This was a genuine gap in the setup.** Every long run from here is interruptible; the box-convergence
 runs are the last that are not.
+
+**D3.24 — Box-convergence jobs killed on operator request (2026-08-16 06:31), reversing D3.23.**
+Killed after 19.5 h at L8 105k/500k (21 %), L12 60k (12 %), L16 35k (7 %) of production.
+**Nothing usable was lost**, but nothing usable was gained either:
+
+- `dens2d_bc_L8.dat` was the only density map with a closed averaging window (one 100 000-step block).
+  Extracting from it gives θ = 145.3° (circle fit) against 53.8° (area/centroid) — a **91.5° spread**,
+  against 2.4° on the validated smoke test, and a fitted radius of 82.9 Å against an expected ~20–26 Å.
+  **One averaging window is not sufficient**, and the dual-estimator design is what makes that visible
+  rather than yielding a single plausible-looking number. Recorded as evidence for the Methods:
+  production must span several windows.
+- L12 and L16 had written no density data at all.
+
+Partial output archived in `10_md/runs/theta_boxconv_KILLED/` (18 MB) rather than deleted — it is the
+evidence for the statement above.
+
+`10_md/runs/RELAUNCH_boxconv.sh` written: one command to restart, and the new run **is** interruptible
+because `in.theta` now checkpoints (D3.23). ETA ~3.5 d from relaunch, L16 critical.
+
+The watcher was stopped before the kill so it would not fire a spurious "died silently" alert —
+a monitor that cries wolf on an intentional action is worse than no monitor.

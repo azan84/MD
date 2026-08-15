@@ -92,3 +92,11 @@ Running log. One line per action. Newest at the bottom of each phase block.
 - 2026-08-16 · **Added restart capability to all downstream MD runs** (`in.theta` + new `in.theta_restart`): alternating checkpoints every 25k steps (~7 h), `run ... upto` on resume so total step count is preserved. ~200 MB/pair/job.
 - 2026-08-16 · Measured ETA from 13 h of real progress: L8 1.7 d, L12 2.4 d, **L16 3.0 d (critical path)**. Earlier 2.1 d estimate was optimistic — three jobs share 12 cores *and* contend with the operator's own work.
 - 2026-08-16 · Watcher armed; fires on completion, on any job erroring, or on silent death.
+
+## 2026-08-16 06:31 — box-convergence jobs KILLED on operator request
+
+- 2026-08-16 · Operator reversed option A and asked for the kill. Watcher stopped first (avoiding a false "died silently" alert), then jobs terminated cleanly. **0 lmp processes remaining; 12 cores released.**
+- 2026-08-16 · State at kill, recorded so relaunch is scripted not reconstructed: L8 105k/500k (21%), L12 60k (12%), L16 35k (7%), after 19.5 h.
+- 2026-08-16 · **Checked for salvage before killing.** L8 had one closed averaging window; extracting from it gave θ = 145.3° vs 53.8° — a **91.5° estimator spread** (validated smoke test: 2.4°) and R = 82.9 Å against an expected 20–26 Å. **Not usable.** One averaging window is insufficient; this is now evidence for the Methods rather than a discarded number.
+- 2026-08-16 · Partial output archived to `10_md/runs/theta_boxconv_KILLED/` (18 MB), not deleted.
+- 2026-08-16 · `10_md/runs/RELAUNCH_boxconv.sh` written — single command to restart. **The next run is interruptible**; these were the last unresumable jobs.

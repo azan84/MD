@@ -5,37 +5,12 @@
  "proj_root": "/home/azan/research/T12_MD_wettability_closure",
  "phase": "3 (S-A) \u2014 box convergence running, theta campaign gated behind it",
  "stage": "S-A",
- "last_completed_step": "FF gate PASSED (1.0-1.8% at 4 state points). Theta input debugged: 4 defects fixed (electrode neighbour exclusion, nve/limit+SHAKE, diluted temperature readout, kspace/timestep). Contact-angle extraction rewritten and VERIFIED on real data (91.2 vs 93.6 deg, spread 2.4 deg). Box convergence launched.",
- "active_runs": [
-  {
-   "id": "theta-boxconv",
-   "kind": "MD",
-   "n_jobs": 3,
-   "ranks_each": 4,
-   "status": "running",
-   "dir": "10_md/runs/theta_boxconv",
-   "launched": "2026-08-15 10:59",
-   "eta_days": {
-    "L8": 1.0,
-    "L12": 1.6,
-    "L16": 2.1
-   },
-   "survives_session_end": true,
-   "check": "pgrep -c -x lmp ; grep -c DONE 10_md/runs/theta_boxconv/log_bc_L*.txt",
-   "eta_days_remaining": {
-    "L8": 1.7,
-    "L12": 2.4,
-    "L16": 3.0
-   },
-   "critical_path": "L16",
-   "resumable": false,
-   "note": "unresumable by design gap; operator chose to let them finish (option A). All LATER runs are checkpointed."
-  }
- ],
+ "last_completed_step": "Box-convergence jobs KILLED on operator request at 19.5 h (L8 21%, L12 12%, L16 7%). Nothing salvageable - the one closed window gave a 91.5 deg estimator spread. Partial output archived.",
+ "active_runs": [],
  "pending_audits": [
   "AUDIT-1 agy re-issue pending OA-1 authentication"
  ],
- "next_action": "When box convergence completes: run extract_theta.py on 10_md/runs/theta_boxconv, adopt the SMALLEST box agreeing with L16 within the estimator spread (~2-3 deg), set that box in launch_theta.sh, then run it. Campaign ~4.0 d at L8 / 6.2 d at L12.",
+ "next_action": "Relaunch when ready: bash 10_md/runs/RELAUNCH_boxconv.sh  (ETA ~3.5 d, L16 critical). The new run checkpoints every 25k steps and IS resumable.",
  "hard_constraints": {
   "disk_free_gb_at_phase0": 61,
   "disk_stop_threshold_gb": 40,
@@ -106,5 +81,6 @@
   "in.theta_restart": "resume input, run ... upto preserves total step count",
   "added": "2026-08-16",
   "applies_from": "theta campaign onward"
- }
+ },
+ "cores_in_use_by_me": 0
 }
