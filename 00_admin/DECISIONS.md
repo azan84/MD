@@ -530,3 +530,23 @@ of it. Three jobs at 8/12/16 nm, 4 ranks each, ΔΨ = 0.
 
 Substantially better than the 13–20 d originally quoted, because production was cut from 15 ns to
 2 ns — a nanoscale interface equilibrates fast, and the smoke test already gave a stable angle.
+
+**D3.23 — Restart capability added; current box-convergence runs left to finish (operator: option A).**
+The box-convergence jobs were launched without any `restart` or `write_data` command, so they are
+**unresumable**: killing them would lose ~39 core-hours and the production `ave/chunk` output (whose
+first 100 000-step window had not yet closed, so the density maps were 0 bytes). The trajectory dumps
+carry positions but not velocities and cannot cleanly restart dynamics.
+
+Operator chose to let them run (~3 d remaining) rather than pay ~0.5 d to relaunch with checkpoints.
+Correct call: the jobs are ~40 % through their wall time and the value of resumability is almost
+entirely downstream.
+
+**Added regardless, since the question will recur across a multi-week campaign:**
+- `in.theta` now writes **alternating** restarts every 25 000 steps (~7 h under current contention),
+  alternating so a kill during a write cannot destroy the only copy.
+- `in.theta_restart` resumes from a checkpoint, using `run ... upto` so a resumed job finishes at the
+  same total step count rather than running an extra full production block.
+- ~200 MB per checkpoint pair per job against 58 GB free — not a disk constraint.
+
+**This was a genuine gap in the setup.** Every long run from here is interruptible; the box-convergence
+runs are the last that are not.

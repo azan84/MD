@@ -8,7 +8,7 @@
 #
 # Usage: lmp -in in.theta -var data <file> -var dpsi <V> -var seed <n> -var tag <name>
 # ============================================================================
-variable        data   index data.iface_L12
+variable        rst    index th.restart.a
 variable        T      index 333.0
 variable        dpsi   index 0.0
 variable        seed   index 12345
@@ -20,7 +20,7 @@ atom_style      full
 boundary        p p f
 processors      * * 1
 
-read_data       ${data}
+read_restart    ${rst}
 
 # ---- ADOPTED force field (gate-validated) -----------------------------------
 pair_style      lj/cut/coul/long 10.0 10.0
@@ -65,28 +65,6 @@ neigh_modify    delay 0 every 1 check yes
 fix             shk watr shake 1.0e-5 200 0 b 1 a 1
 fix             frz elec setforce 0.0 0.0 0.0
 
-# ---- relax the lattice start ------------------------------------------------
-# The global temperature is diluted by the frozen electrode degrees of freedom
-# (measured ~250 K reported for a 333 K thermostat). Report the mobile group. (D3.19)
-compute         tmob mobile temp
-thermo          1000
-thermo_style    custom step c_tmob pe press
-# LAMMPS warns "Should not use fix nve/limit with fix shake": the displacement cap
-# interferes with constraint satisfaction. A very small timestep under a strong
-# Langevin thermostat relaxes the lattice start without violating SHAKE. (D3.18)
-velocity        mobile create ${T} ${seed} mom yes rot yes dist gaussian
-timestep        0.1
-fix             lang0 mobile langevin ${T} ${T} 20.0 ${seed}
-fix             nve0  mobile nve
-run             40000                      # 4 ps at 0.1 fs
-unfix           nve0
-unfix           lang0
-
-# ---- equilibrate at zero potential ------------------------------------------
-timestep        2.0                        # SHAKE-constrained water; verified stable
-fix             nvt mobile nvt temp ${T} ${T} 100.0
-run             25000                      # 50 ps
-
 # ---- switch on constant potential -------------------------------------------
 # psi is split symmetrically about zero so the cell voltage is dpsi
 variable        half equal ${dpsi}/2.0
@@ -98,26 +76,17 @@ compute         sqt top reduce sum c_qt
 thermo_style    custom step c_tmob c_sqb c_sqt pe press
 run             25000                      # 50 ps polarised equilibration
 
-# ---- production: density field for the contact angle ------------------------
+
+# ---- production continues from the checkpoint ------------------------------
 reset_timestep  0
-# 2D density map in the x-z plane, averaged over the periodic y (cylinder axis)
 compute         cchunk liq chunk/atom bin/2d x lower 0.5 z lower 0.5 units box
-fix             dmap liq ave/chunk 20 5000 100000 cchunk density/mass &
-                file dens2d_${tag}.dat
+fix             dmap liq ave/chunk 20 5000 100000 cchunk density/mass file dens2d_${tag}_r.dat
 compute         gchunk gas chunk/atom bin/2d x lower 0.5 z lower 0.5 units box
-fix             gmap gas ave/chunk 20 5000 100000 gchunk density/mass &
-                file gas2d_${tag}.dat
-fix             qavg all ave/time 10 100 1000 c_sqb c_sqt file charge_${tag}.dat
-
-dump            trj all custom 20000 traj_${tag}.lammpstrj id type x y z
+fix             gmap gas ave/chunk 20 5000 100000 gchunk density/mass file gas2d_${tag}_r.dat
+fix             qavg all ave/time 10 100 1000 c_sqb c_sqt file charge_${tag}_r.dat
+dump            trj all custom 20000 traj_${tag}_r.lammpstrj id type x y z
 dump_modify     trj sort id
-
-# ---- RESTART CAPABILITY (added after the box-convergence runs proved unresumable) ----
-# Alternating checkpoints so a kill mid-write cannot destroy the only copy.
-# 25000 steps ~= 7 h wall under current contention; ~200 MB per pair per job.
-# To resume:  lmp -in in.theta_restart -var rst <file> -var tag <same tag>
 restart         25000 ${tag}.restart.a ${tag}.restart.b
-
 thermo          5000
-run             500000                     # 1 ns production
-print           "DONE ${tag}"
+run             500000 upto
+print           "DONE ${tag} (resumed)"

@@ -21,7 +21,15 @@
     "L16": 2.1
    },
    "survives_session_end": true,
-   "check": "pgrep -c -x lmp ; grep -c DONE 10_md/runs/theta_boxconv/log_bc_L*.txt"
+   "check": "pgrep -c -x lmp ; grep -c DONE 10_md/runs/theta_boxconv/log_bc_L*.txt",
+   "eta_days_remaining": {
+    "L8": 1.7,
+    "L12": 2.4,
+    "L16": 3.0
+   },
+   "critical_path": "L16",
+   "resumable": false,
+   "note": "unresumable by design gap; operator chose to let them finish (option A). All LATER runs are checkpointed."
   }
  ],
  "pending_audits": [
@@ -92,5 +100,11 @@
   "paper1": "drafted 8pp, FF results real, wettability PENDING",
   "paper2": "drafted 11pp, gate results real, rest PENDING",
   "figures": "5, all from real data"
+ },
+ "restart_capability": {
+  "in.theta": "alternating restarts every 25000 steps",
+  "in.theta_restart": "resume input, run ... upto preserves total step count",
+  "added": "2026-08-16",
+  "applies_from": "theta campaign onward"
  }
 }

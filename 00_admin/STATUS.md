@@ -84,3 +84,11 @@ Running log. One line per action. Newest at the bottom of each phase block.
 - 2026-08-15 · **New figure fig6**: density FAIL→PASS and the transport recovery, side by side.
 - 2026-08-15 · **Paper 2 §4.1 updated** — previously reported the gate failure as standing. Now reports failure *and* resolution, citing Paper 1 for the full account.
 - 2026-08-15 · **PAUSED.** 3 box-convergence jobs deliberately left running under `nohup`; they survive session end. Resume via `00_admin/RESUME.md`.
+
+## 2026-08-16 — restart capability added; box convergence left running (operator: option A)
+
+- 2026-08-16 · Operator asked whether the running jobs could be killed and resumed. **They could not** — no restart files, and the production density maps were still 0 bytes because the `ave/chunk` window had not closed. Answered plainly rather than implying a checkpoint existed.
+- 2026-08-16 · Operator chose **option A**: let them finish (~3 d remaining). Jobs untouched, 12 procs, 0 errors.
+- 2026-08-16 · **Added restart capability to all downstream MD runs** (`in.theta` + new `in.theta_restart`): alternating checkpoints every 25k steps (~7 h), `run ... upto` on resume so total step count is preserved. ~200 MB/pair/job.
+- 2026-08-16 · Measured ETA from 13 h of real progress: L8 1.7 d, L12 2.4 d, **L16 3.0 d (critical path)**. Earlier 2.1 d estimate was optimistic — three jobs share 12 cores *and* contend with the operator's own work.
+- 2026-08-16 · Watcher armed; fires on completion, on any job erroring, or on silent death.
