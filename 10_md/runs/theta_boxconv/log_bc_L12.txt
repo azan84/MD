@@ -85,3 +85,193 @@ Setting up Verlet run ...
 Per MPI rank memory allocation (min/avg/max) = 28.9 | 29.58 | 30.27 Mbytes
    Step         c_tmob         PotEng         Press     
          0   333           -12663.063      13531.937    
+      1000   391.08673     -200749.79      8525.1196    
+      2000   344.69685     -211158.03      9473.9881    
+      3000   340.65218     -214808.07      9163.4957    
+      4000   339.97589     -216935.41      8365.6631    
+      5000   335.00588     -218201.33      8189.425     
+      6000   333.14918     -218872.97      9904.8314    
+      7000   337.43044     -219664.56      8531.4676    
+      8000   335.26879     -220055.87      9764.1781    
+      9000   334.84362     -220481.69      9999.759     
+     10000   339.47651     -220933.37      9780.2235    
+     11000   334.87896     -221252.17      8858.8807    
+     12000   332.15937     -221581.68      8804.7083    
+     13000   337.03906     -221880.26      10146.039    
+     14000   333.9596      -222083.54      9115.5098    
+     15000   331.17801     -222285.02      9744.3635    
+     16000   334.80493     -222455.6       9188.7043    
+     17000   335.97804     -222578.27      9766.3887    
+     18000   334.61094     -222767.37      9411.1134    
+     19000   329.81552     -222813.76      8732.9532    
+     20000   332.7399      -223030.35      9941.2058    
+     21000   336.14638     -223091.21      10498.409    
+     22000   333.75395     -223187.2       9617.3       
+     23000   332.37295     -223400.99      10301.974    
+     24000   329.48308     -223457.29      10070.453    
+     25000   336.1102      -223547.79      10094.366    
+     26000   333.90786     -223625.43      8958.6201    
+     27000   334.06544     -223622.11      9622.9442    
+     28000   334.84191     -224068.69      9764.9677    
+     29000   334.95864     -223905.79      9239.7982    
+     30000   337.87067     -223845.9       9525.1055    
+     31000   330.0628      -224127.22      9974.5493    
+     32000   335.06298     -224177.83      9027.1335    
+     33000   330.89752     -224226.28      10355.595    
+     34000   334.13417     -224284.74      10097.463    
+     35000   335.07958     -224315.01      10161.361    
+     36000   333.37781     -224262.58      9317.2479    
+     37000   334.54237     -224554.59      9613.0817    
+     38000   334.35408     -224534.71      9129.1304    
+     39000   335.30803     -224457.52      9212.5641    
+     40000   333.02963     -224497.61      10677.674    
+Loop time of 10424.6 on 4 procs for 40000 steps with 30595 atoms
+
+Performance: 0.033 ns/day, 723.931 hours/ns, 3.837 timesteps/s, 117.395 katom-step/s
+62.9% CPU use with 4 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 3174.7     | 3378.8     | 3598.4     | 348.0 | 32.41
+Bond    | 0.32179    | 0.36431    | 0.42775    |   6.4 |  0.00
+Kspace  | 5687.9     | 5909.3     | 6113.4     | 264.8 | 56.69
+Neigh   | 33.172     | 33.215     | 33.253     |   0.5 |  0.32
+Comm    | 534.57     | 537.91     | 539.95     |   9.0 |  5.16
+Output  | 0.74275    | 0.7757     | 0.80186    |   2.6 |  0.01
+Modify  | 359.47     | 366.74     | 373.65     |  34.1 |  3.52
+Other   |            | 197.5      |            |       |  1.89
+
+Nlocal:        7648.75 ave        7998 max        7293 min
+Histogram: 2 0 0 0 0 0 0 0 0 2
+Nghost:        17072.2 ave       17843 max       16325 min
+Histogram: 2 0 0 0 0 0 0 0 0 2
+Neighs:    2.25482e+06 ave 2.41213e+06 max 2.08055e+06 min
+Histogram: 1 1 0 0 0 0 0 0 0 2
+
+Total # of neighbors = 9019275
+Ave neighs/atom = 294.79572
+Ave special neighs/atom = 1.4496486
+Neighbor list builds = 204
+Dangerous builds = 0
+PPPM/electrode initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.25562893
+  grid = 50 18 120
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.036008669
+  estimated relative force accuracy = 0.00010843904
+  using double precision FFTW3
+  3d grid and FFT values/proc = 54900 28080
+Generated 21 of 21 mixed pair_coeff terms from geometric mixing rule
+Setting up Verlet run ...
+  Unit style    : real
+  Current step  : 40000
+  Time step     : 2
+Per MPI rank memory allocation (min/avg/max) = 28.9 | 29.58 | 30.27 Mbytes
+   Step         c_tmob         PotEng         Press     
+     40000   333.02963     -224497.61      9815.8577    
+     41000   334.65183     -225729.92      10426.216    
+     42000   338.67299     -226579.05      10631.12     
+     43000   331.00573     -226860.64      10690.682    
+     44000   329.65964     -227214.55      10947.285    
+     45000   331.73299     -227399.3       11128.29     
+     46000   332.70492     -227357.52      10772.074    
+     47000   332.14549     -227564.75      10863.805    
+     48000   333.08442     -227462.57      10962.063    
+     49000   337.32721     -227283.74      10876.518    
+     50000   331.41188     -227623.63      10683.333    
+     51000   333.43575     -227707.5       10899.553    
+     52000   331.14751     -227683.84      10935.643    
+     53000   331.71302     -227687.52      10847.274    
+     54000   334.08084     -227324.14      10820.83     
+     55000   334.34984     -227706.7       10807.307    
+     56000   334.32792     -227525.55      10753.695    
+     57000   332.26077     -227508.61      10832.641    
+     58000   331.76963     -227447.9       10918.764    
+     59000   332.54571     -227868.88      10818.09     
+     60000   333.11044     -227683.79      10655.93     
+     61000   335.53933     -227781.44      10859.208    
+     62000   334.66875     -227668.93      10772.208    
+     63000   333.21749     -227865.21      10897.824    
+     64000   328.58727     -227755.62      10796.758    
+     65000   333.54084     -227760.9       10877.346    
+Loop time of 8087.46 on 4 procs for 25000 steps with 30595 atoms
+
+Performance: 0.534 ns/day, 44.930 hours/ns, 3.091 timesteps/s, 94.575 katom-step/s
+63.2% CPU use with 4 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 2341.7     | 2680.1     | 2992.5     | 603.8 | 33.14
+Bond    | 0.18613    | 0.20374    | 0.22872    |   3.5 |  0.00
+Kspace  | 3728.8     | 4042       | 4383.6     | 492.9 | 49.98
+Neigh   | 570.99     | 571.64     | 572.34     |   2.7 |  7.07
+Comm    | 354.37     | 361.45     | 365.81     |  24.3 |  4.47
+Output  | 0.46218    | 0.47267    | 0.47969    |   0.9 |  0.01
+Modify  | 344.08     | 346.58     | 348.14     |   8.4 |  4.29
+Other   |            | 84.98      |            |       |  1.05
+
+Nlocal:        7648.75 ave        8411 max        6856 min
+Histogram: 1 1 0 0 0 0 0 0 1 1
+Nghost:        16996.8 ave       18136 max       15838 min
+Histogram: 1 1 0 0 0 0 0 0 1 1
+Neighs:    2.33176e+06 ave  2.6456e+06 max 2.01702e+06 min
+Histogram: 1 1 0 0 0 0 0 0 1 1
+
+Total # of neighbors = 9327046
+Ave neighs/atom = 304.85524
+Ave special neighs/atom = 1.4496486
+Neighbor list builds = 2798
+Dangerous builds = 0
+5760 atoms in group conp_group
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+- fix electrode command:
+The log file lists these citations in BibTeX format.
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+PPPM/electrode initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.25562893
+  grid = 50 18 120
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.036008669
+  estimated relative force accuracy = 0.00010843904
+  using double precision FFTW3
+  3d grid and FFT values/proc = 54900 28080
+Generated 21 of 21 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 12
+  ghost atom cutoff = 12
+  binsize = 6, bins = 20 5 20
+  2 neighbor lists, perpetual/occasional/extra = 2 0 0
+  (1) pair lj/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d
+      bin: standard
+  (2) fix electrode/conp, perpetual, copy from (1)
+      attributes: half, newton on
+      pair build: copy
+      stencil: none
+      bin: none
+Setting up Verlet run ...
+  Unit style    : real
+  Current step  : 65000
+  Time step     : 2
+Per MPI rank memory allocation (min/avg/max) = 290.5 | 293.1 | 295.3 Mbytes
+   Step         c_tmob         c_sqb          c_sqt          PotEng         Press     
+     65000   333.54084     -0.060099715    0.060099715   -227803.11      10868.713    
+     66000   336.32383      0.014518649   -0.014518649   -227701.77      10840.709    
+     67000   331.39552     -0.08428734     0.08428734    -227610.15      10928.652    
+     68000   330.09705     -0.54396499     0.54396499    -227532.39      10880.822    
+     69000   336.36478     -0.38756        0.38756       -227659.33      11023.219    
+     70000   328.05249     -0.69892659     0.69892659    -227776.03      11000.069    
+     71000   334.283       -0.16957196     0.16957196    -227796.8       10937.854    

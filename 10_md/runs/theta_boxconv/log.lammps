@@ -114,4 +114,293 @@ Finding SHAKE clusters ...
        0 = # of size 3 clusters
        0 = # of size 4 clusters
     4588 = # of frozen angles
-  find cl
+  find clfind clusters CPU = 0.009 seconds
+fix             frz elec setforce 0.0 0.0 0.0
+
+# ---- relax the lattice start ------------------------------------------------
+# The global temperature is diluted by the frozen electrode degrees of freedom
+# (measured ~250 K reported for a 333 K thermostat). Report the mobile group. (D3.19)
+compute         tmob mobile temp
+thermo          1000
+thermo_style    custom step c_tmob pe press
+# LAMMPS warns "Should not use fix nve/limit with fix shake": the displacement cap
+# interferes with constraint satisfaction. A very small timestep under a strong
+# Langevin thermostat relaxes the lattice start without violating SHAKE. (D3.18)
+velocity        mobile create ${T} ${seed} mom yes rot yes dist gaussian
+velocity        mobile create 333.0 ${seed} mom yes rot yes dist gaussian
+velocity        mobile create 333.0 7016 mom yes rot yes dist gaussian
+timestep        0.1
+fix             lang0 mobile langevin ${T} ${T} 20.0 ${seed}
+fix             lang0 mobile langevin 333.0 ${T} 20.0 ${seed}
+fix             lang0 mobile langevin 333.0 333.0 20.0 ${seed}
+fix             lang0 mobile langevin 333.0 333.0 20.0 7016
+fix             nve0  mobile nve
+run             40000                      # 4 ps at 0.1 fs
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+
+- kspace_style pppm/electrode command:
+
+@article{Ahrens2021,
+author = {Ahrens-Iwers, Ludwig J.V. and Mei{\ss}ner, Robert H.},
+doi = {10.1063/5.0063381},
+title = {{Constant potential simulations on a mesh}},
+journal = {Journal of Chemical Physics},
+year = {2021}
+volume = {155},
+pages = {104104},
+}
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+PPPM/electrode initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.25454941
+  grid = 64 18 120
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.03837681
+  estimated relative force accuracy = 0.00011557062
+  using double precision FFTW3
+  3d grid and FFT values/proc = 64050 34560
+Generated 21 of 21 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 12
+  ghost atom cutoff = 12
+  binsize = 6, bins = 27 5 20
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 33.34 | 33.86 | 34.2 Mbytes
+   Step         c_tmob         PotEng         Press     
+         0   333            7674.3294      17301.607    
+      1000   393.73061     -265466.59      7743.715     
+      2000   345.82733     -280716.08      9268.2554    
+      3000   340.30756     -286033.1       9579.4509    
+      4000   337.04446     -288936.78      8896.2729    
+      5000   336.47917     -290853.42      10060.729    
+      6000   332.36824     -292181.05      9909.5235    
+      7000   334.1252      -293248.27      9882.1277    
+      8000   332.44518     -294195.56      9068.4613    
+      9000   336.18562     -294619.18      9524.5436    
+     10000   335.93807     -295338.72      9881.5491    
+     11000   330.65555     -295684.22      9890.0701    
+     12000   333.90077     -296161.3       9844.7657    
+     13000   334.50611     -296477.36      9351.9141    
+     14000   335.28438     -297047.32      9766.2258    
+     15000   335.77734     -297125.92      10272.972    
+     16000   332.57833     -297357.61      9914.7953    
+     17000   333.22213     -297696.94      9284.5155    
+     18000   333.30386     -297945.25      9476.9811    
+     19000   334.84636     -298428.43      10348.623    
+     20000   333.34359     -298397.89      10029.323    
+     21000   334.61701     -298533.55      9737.6389    
+     22000   333.99915     -298997.34      9995.068     
+     23000   332.94975     -299074.65      10051.323    
+     24000   331.54267     -299083.03      9242.2668    
+     25000   333.34627     -299111.88      10377.093    
+     26000   334.25389     -299321.58      9872.0866    
+     27000   335.82853     -299404.32      9766.1451    
+     28000   337.16246     -299456.19      10332.435    
+     29000   335.92628     -299574.57      10174.425    
+     30000   337.26262     -299577.34      9933.6722    
+     31000   331.53796     -300093.11      9233.3593    
+     32000   332.71503     -299849.08      10391.398    
+     33000   331.29431     -300243.83      10139.086    
+     34000   333.07913     -300007.61      10931.366    
+     35000   333.84303     -300271.19      9381.2492    
+     36000   335.72417     -300309.99      9192.934     
+     37000   333.4199      -300381.3       10183.427    
+     38000   336.76367     -300476.03      9129.3879    
+     39000   330.48229     -300725.52      9086.746     
+     40000   335.30876     -300747.16      9943.6356    
+Loop time of 12734 on 4 procs for 40000 steps with 41133 atoms
+
+Performance: 0.027 ns/day, 884.305 hours/ns, 3.141 timesteps/s, 129.207 katom-step/s
+62.9% CPU use with 4 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 4463.5     | 4653       | 4782.3     | 185.2 | 36.54
+Bond    | 0.32515    | 0.341      | 0.34997    |   1.6 |  0.00
+Kspace  | 6658.3     | 6789.2     | 6980.4     | 155.6 | 53.32
+Neigh   | 45.274     | 45.33      | 45.38      |   0.6 |  0.36
+Comm    | 571.65     | 574.71     | 579.18     |  11.5 |  4.51
+Output  | 0.77318    | 0.7902     | 0.80081    |   1.2 |  0.01
+Modify  | 428.09     | 437.91     | 444.64     |  29.4 |  3.44
+Other   |            | 232.8      |            |       |  1.83
+
+Nlocal:        10283.2 ave       10563 max        9975 min
+Histogram: 1 1 0 0 0 0 0 0 0 2
+Nghost:        19105.2 ave       19751 max       18440 min
+Histogram: 2 0 0 0 0 0 0 0 0 2
+Neighs:    3.04158e+06 ave  3.1637e+06 max 2.90806e+06 min
+Histogram: 1 1 0 0 0 0 0 0 0 2
+
+Total # of neighbors = 12166334
+Ave neighs/atom = 295.78037
+Ave special neighs/atom = 1.459558
+Neighbor list builds = 208
+Dangerous builds unfix unfix           nve0
+unfix           lang0
+
+# ---- equilibrate at zero potential ------------------------------------------
+timestep        2.0                        # SHAKE-constrained water; verified stable
+fix             nvt mobile nvt temp ${T} ${T} 100.0
+fix             nvt mobile nvt temp 333.0 ${T} 100.0
+fix             nvt mobile nvt temp 333.0 333.0 100.0
+run             25000                      # 50 ps
+PPPM/electrode initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.25562893
+  grid = 50 18 120
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.036008669
+  estimated relative force accuracy = 0.00010843904
+  using double precision FFTW3
+  3d grid and FFT values/proc = 54900 28080
+Generated 21 of 21 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 28.9 | 29.58 | 30.27 Mbytes
+   Step         c_tmob         PotEng         Press     
+     40000   333.02963     -224497.61      9815.8577    
+     41000   334.65183     -225729.92      10426.216    
+     42000   338.67299     -226579.05      10631.12     
+     43000   331.00573     -226860.64      10690.682    
+     44000   329.65964     -227214.55      10947.285    
+     45000   331.73299     -227399.3       11128.29     
+     46000   332.70492     -227357.52      10772.074    
+     47000   332.14549     -227564.75      10863.805    
+     48000   333.08442     -227462.57      10962.063    
+     49000   337.32721     -227283.74      10876.518    
+     50000   331.41188     -227623.63      10683.333    
+     51000   333.43575     -227707.5       10899.553    
+     52000   331.14751     -227683.84      10935.643    
+     53000   331.71302     -227687.52      10847.274    
+     54000   334.08084     -227324.14      10820.83     
+     55000   334.34984     -227706.7       10807.307    
+     56000   334.32792     -227525.55      10753.695    
+     57000   332.26077     -227508.61      10832.641    
+     58000   331.76963     -227447.9       10918.764    
+     59000   332.54571     -227868.88      10818.09     
+     60000   333.11044     -227683.79      10655.93     
+     61000   335.53933     -227781.44      10859.208    
+     62000   334.66875     -227668.93      10772.208    
+     63000   333.21749     -227865.21      10897.824    
+     64000   328.58727     -227755.62      10796.758    
+     65000   333.54084     -227760.9       10877.346    
+Loop time of 8087.46 on 4 procs for 25000 steps with 30595 atoms
+
+Performance: 0.534 ns/day, 44.930 hours/ns, 3.091 timesteps/s, 94.575 katom-step/s
+63.2% CPU use with 4 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 2341.7     | 2680.1     | 2992.5     | 603.8 | 33.14
+Bond    | 0.18613    | 0.20374    | 0.22872    |   3.5 |  0.00
+Kspace  | 3728.8     | 4042       | 4383.6     | 492.9 | 49.98
+Neigh   | 570.99     | 571.64     | 572.34     |   2.7 |  7.07
+Comm    | 354.37     | 361.45     | 365.81     |  24.3 |  4.47
+Output  | 0.46218    | 0.47267    | 0.47969    |   0.9 |  0.01
+Modify  | 344.08     | 346.58     | 348.14     |   8.4 |  4.29
+Other   |            | 84.98      |            |       |  1.05
+
+Nlocal:        7648.75 ave        8411 max        6856 min
+Histogram: 1 1 0 0 0 0 0 0 1 1
+Nghost:        16996.8 ave       18136 max       15838 min
+Histogram: 1 1 0 0 0 0 0 0 1 1
+Neighs:    2.33176e+06 ave  2.6456e+06 max 2.01702e+06 min
+Histogram: 1 1 0 0 0 0 0 0 1 1
+
+Total # of neighbors = 9327046
+Ave neighs/atom = 304.85524
+Ave special neighs/atom = 1.4496486
+Neighbor list builds = 2798
+Dangerous builds
+# ---- switch on constant potential -------------------------------------------
+# psi is split symmetrically about zero so the cell voltage is dpsi
+variable        half equal ${dpsi}/2.0
+variable        half equal 0.0/2.0
+fix             conp bot electrode/conp -${half} 1.805 couple top ${half} symm on
+fix             conp bot electrode/conp -0 1.805 couple top ${half} symm on
+fix             conp bot electrode/conp -0 1.805 couple top 0 symm on
+3840 atoms in group conp_group
+compute         qb bot property/atom q
+compute         qt top property/atom q
+compute         sqb bot reduce sum c_qb
+compute         sqt top reduce sum c_qt
+thermo_style    custom step c_tmob c_sqb c_sqt pe press
+run             25000                      # 50 ps polarised equilibration
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+
+- fix electrode command:
+
+@article{Ahrens2022
+author = {Ahrens-Iwers, Ludwig J.V. and Janssen, Mahijs and Tee, Shern R. and Mei{\ss}ner, Robert H.},
+doi = {10.1063/5.0099239},
+title = {{ELECTRODE: An electrochemistry package for LAMMPS}},
+journal = {The Journal of Chemical Physics},
+year = {2022}
+volume = {157},
+pages = {084801},
+}
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+PPPM/electrode initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.25781961
+  grid = 36 18 120
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.031008078
+  estimated relative force accuracy = 9.3379907e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 42700 19440
+Generated 21 of 21 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 12
+  ghost atom cutoff = 12
+  binsize = 6, bins = 14 5 20
+  2 neighbor lists, perpetual/occasional/extra = 2 0 0
+  (1) pair lj/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d
+      bin: standard
+  (2) fix electrode/conp, perpetual, copy from (1)
+      attributes: half, newton on
+      pair build: copy
+      stencil: none
+      bin: none
+Per MPI rank memory allocation (min/avg/max) = 142.8 | 144.1 | 146 Mbytes
+   Step         c_tmob         c_sqb          c_sqt          PotEng         Press     
+     65000   331.42644     -0.011176366    0.011176366   -148147.3       11018.892    
+     66000   332.73545     -0.013341053    0.013341053   -148161.35      10843.72     
+     67000   332.41067      0.08714118    -0.08714118    -148091.83      11165.338    
+     68000   329.47333     -0.046175826    0.046175826   -147989.58      11129.896    
+     69000   331.62861     -0.39617762     0.39617762    -148281.34      10817.767    
+     70000   333.68079     -0.50246355     0.50246355    -147994.27      10765.862    
+     71000   333.6556      -0.19249096     0.19249096    -148222.07      10709.553    
+     72000   334.02954     -0.11240667     0.11240667    -148225.66      10993.997    
+     73000   335.51727     -0.14945729     0.14945729    -147938.67      10738.403    
+     74000   332.38354     -0.46001896     0.46001896    -147980.13      11096.295    
+     75000   333.80588     -0.12208129     0.12208129    -148012.28      10754.835    
+     76000   334.67869      0.031229247   -0.031229247   -147957.08      10986.062    
+     77000   333.7535       0.19529277    -0.19529277    -147956.56      10793.675    
+     78000   333.27261     -0.26173171     0.26173171    -148047.83      10932.563    
+     79000   332.32127      0.16706931    -0.16706931    -148247.38      10682.323    
+     80000   331.20613      0.015210768   -0.015210768   -148051.76      10996.643    
+     81000   336.53974     -0.061227339    0.061227339   -148155.55      10953.477    
+     82000   335.05212      0.37774272    -0.37774272    -147922.46      10844.173    
+     83000   333.42622     -0.41690551     0.41690551    -148016.51      10957.719    
+     84

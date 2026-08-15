@@ -64,3 +64,11 @@ Running log. One line per action. Newest at the bottom of each phase block.
 - 2026-08-15 · Structure: Intro (GAP-M-02), Theory (constant-potential scheme, Lippmann, apparent molar volume as the diagnostic), Methods, **§4 Results: force-field development — COMPLETE with real data**, §5 wettability results PENDING.
 - 2026-08-15 · New figure `fig5_ff_development.pdf`: (a) σ-scan with measured crossing 3.67 Å vs published 3.81 Å; (b) charge scaling at the published σ — q=1.0 fails +6.0/+7.8%, q=0.8 passes −1.1/−1.5%.
 - 2026-08-15 · Paper 1 carries the FULL MD methods; Paper 2's §3.1 must be compressed to a summary citing Paper 1 before submission, to avoid duplicate methods across the pair (salami risk).
+
+## CHECKPOINT — 2026-08-15 (operator requested pause + save)
+
+- 2026-08-15 · Wrote `00_admin/RESUME.md` — the single entry point for resuming. Captures: what is running, the immediate next action with exact commands, deliverable state, the settled force field, open items that bite, and 7 hard-won lessons.
+- 2026-08-15 · `STATE.json` checkpointed with active runs, ETAs, next action and gate status.
+- 2026-08-15 · **3 box-convergence jobs left RUNNING** (nohup, 4 ranks each, 12 cores). They survive session end. L8 at step 85k, L12 at 71k, L16 at 64k of 590k. ETA 1.0/1.6/2.1 days.
+- 2026-08-15 · Disk 58 GB free (stop threshold 40 GB). Working tree committed.
+- 2026-08-15 · **Resume by reading `00_admin/RESUME.md` first.**
