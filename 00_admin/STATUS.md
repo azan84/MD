@@ -100,3 +100,13 @@ Running log. One line per action. Newest at the bottom of each phase block.
 - 2026-08-16 · **Checked for salvage before killing.** L8 had one closed averaging window; extracting from it gave θ = 145.3° vs 53.8° — a **91.5° estimator spread** (validated smoke test: 2.4°) and R = 82.9 Å against an expected 20–26 Å. **Not usable.** One averaging window is insufficient; this is now evidence for the Methods rather than a discarded number.
 - 2026-08-16 · Partial output archived to `10_md/runs/theta_boxconv_KILLED/` (18 MB), not deleted.
 - 2026-08-16 · `10_md/runs/RELAUNCH_boxconv.sh` written — single command to restart. **The next run is interruptible**; these were the last unresumable jobs.
+
+## 2026-08-16 — Paper 1 updated with results not previously included (10 → 11 pp)
+
+Audited both manuscripts against what exists on disk. Three real results were absent and are now in:
+
+- **§3.5 "Numerical settings, and two that are easy to get wrong"** — electrostatics, timestep, no slab tail correction. Then the two traps, written as methodological findings because both are natural optimisations and both are wrong: (i) **electrode–electrode pairs must not be excluded from the neighbour list** with `fix electrode/conp`, which builds its elastance matrix from exactly those interactions — costs 2.1× throughput to do correctly; (ii) **`nve/limit` is incompatible with SHAKE**. Plus the diagnostic note that a frozen electrode dilutes the reported temperature (250 K shown for a 333 K thermostat).
+- **§3.6 "Extraction of the contact angle, and its validation"** — the bubble is located from the *gas* field, not low-density regions of the liquid field, because the latter span the whole cell. Two independent estimators reported, sharing no fitting machinery.
+- **The averaging-convergence criterion, derived from the killed run.** Well-averaged: **2.4° agreement** (91.2/93.6°). One output window only: **91.5° disagreement** (145.3/53.8°) with a radius ~3× the physical bubble. Either number alone looks plausible; together they are obviously unconverged. **Any state point whose estimators differ by more than ~10° is treated as unconverged rather than reported.**
+
+The last item turns a discarded partial run into a stated acceptance criterion.

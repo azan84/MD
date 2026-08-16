@@ -210,6 +210,64 @@ The control variable is the electrode potential referenced to the potential of z
 determined in a separate calculation. The raw inter-slab potential difference is a cell voltage, not
 an electrode potential.
 
+\subsection{Numerical settings, and two that are easy to get wrong}\label{sec:numerics}
+
+Electrostatics use \texttt{pppm/electrode} at a relative accuracy of $10^{-4}$ with the slab
+correction; Lennard-Jones interactions are cut at \SI{10}{\angstrom} and combined geometrically, with
+\emph{no} analytic tail correction, which is not valid for a slab geometry. The timestep is
+\SI{2}{\femto\second} for the constrained system and \SI{0.1}{\femto\second} during the initial
+relaxation. Tightening the electrostatic accuracy to $10^{-5}$ was measured to cost a factor of
+2.13 in throughput with no effect on the structural quantities reported here.
+
+Two settings deserve explicit mention because both are natural optimisations and both are wrong in
+this context.
+
+\textbf{Electrode--electrode pairs must not be excluded from the neighbour list.} Freezing the
+electrode invites the optimisation \texttt{neigh\_modify exclude group elec elec}, since those atoms
+never move relative to one another. It is not admissible with constant-potential dynamics:
+\texttt{fix electrode/conp} constructs its elastance matrix from precisely those interactions, and
+LAMMPS warns separately that neighbour exclusions combined with a mesh-based Coulomb solver give
+inconsistent energies. Removing the exclusion costs a factor of 2.1 in throughput and was removed.
+The reference case used to verify this implementation does not employ it either.
+
+\textbf{Displacement-capped integration is incompatible with constraint algorithms.} A lattice
+initial configuration invites \texttt{fix nve/limit} to relax close contacts. LAMMPS warns against
+combining it with SHAKE, because the displacement cap interferes with constraint satisfaction. A
+\SI{0.1}{\femto\second} timestep under a strong Langevin thermostat achieves the same relaxation
+while leaving the constraints intact, and is used here.
+
+A third point concerns diagnostics rather than dynamics: with a frozen electrode, the system
+temperature computed over all atoms is diluted by the immobile degrees of freedom, and read
+approximately \SI{250}{\kelvin} for a thermostat set to \SI{333}{\kelvin}. The thermostat acts
+correctly on the mobile group; only the reported value is misleading. All temperatures quoted here
+are computed over the mobile group.
+
+\subsection{Extraction of the contact angle, and its validation}\label{sec:extraction}
+
+The angle is obtained from the time-averaged two-dimensional density field in the plane normal to the
+cylinder axis. The bubble is located from the \emph{gas} density field rather than from low-density
+regions of the liquid field: the latter also include the vapour space above the film and the depleted
+layers at both electrodes, and a fit over those spans the entire cell rather than the bubble.
+
+Two independent estimators are computed and both are reported:
+\begin{enumerate}[leftmargin=*,itemsep=1pt]
+\item a circle fitted to the gas--liquid boundary, excluding a \SI{3}{\angstrom} near-wall layer
+where the liquid is strongly layered;
+\item an inversion of the gas-phase area and centroid height onto a circular segment.
+\end{enumerate}
+The two share no fitting machinery, so their difference bounds the sensitivity of the result to the
+choice of estimator, and that difference is carried as an uncertainty component alongside the spread
+across replicas.
+
+\textbf{The pair also functions as a validity check on the averaging, which a single estimator cannot
+provide.} On a well-averaged test case the two agree to \ang{2.4} (\ang{91.2} and \ang{93.6}, fit
+residual \SI{1.30}{\angstrom}). On a case averaged over only one output window the same procedure
+returns \ang{145.3} and \ang{53.8} --- a disagreement of \ang{91.5} --- together with a fitted radius
+roughly three times the physical bubble size. Either number alone is superficially plausible;
+together they are obviously not converged. Production averaging therefore spans several output
+windows, and any state point whose estimators differ by more than approximately \ang{10} is treated
+as unconverged rather than reported.
+
 \subsection{The validation gate}
 Criteria were fixed before any result was inspected: density within 3\,\%, $D(\mathrm{H_2O})$ within
 30\,\%, $D(\mathrm{K^+})$ within 40\,\%. Diffusivities are obtained from the Einstein relation over

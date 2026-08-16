@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.5.28)  15 AUG 2026 23:46
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.5.28)  16 AUG 2026 09:00
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -691,18 +691,18 @@ Package siunitx Warning: Unit macro \angstrom has been deprecated in this
 (siunitx)                
 (siunitx)                \DeclareSIUnit\angstrom{\text {Å}}
 
-[3]
+[3] [4]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 239.
+(Font)              <10> on input line 297.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 239.
+(Font)              <7> on input line 297.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 239.
-<../figures/fig1_density_gate.pdf, id=148, 505.89pt x 209.58301pt>
+(Font)              <5> on input line 297.
+<../figures/fig1_density_gate.pdf, id=162, 505.89pt x 209.58301pt>
 File: ../figures/fig1_density_gate.pdf Graphic file (type pdf)
 <use ../figures/fig1_density_gate.pdf>
-Package pdftex.def Info: ../figures/fig1_density_gate.pdf  used on input line 2
-53.
+Package pdftex.def Info: ../figures/fig1_density_gate.pdf  used on input line 3
+11.
 (pdftex.def)             Requested size: 460.935pt x 190.96387pt.
 
 
@@ -714,31 +714,31 @@ Package siunitx Warning: Unit macro \bar has been deprecated in this release.
 (siunitx)                
 (siunitx)                \DeclareSIUnit\bar{bar}
 
-[4]
-<../figures/fig5_ff_development.pdf, id=164, 505.89pt x 213.19649pt>
+[5]
+<../figures/fig5_ff_development.pdf, id=181, 505.89pt x 213.19649pt>
 File: ../figures/fig5_ff_development.pdf Graphic file (type pdf)
 <use ../figures/fig5_ff_development.pdf>
 Package pdftex.def Info: ../figures/fig5_ff_development.pdf  used on input line
- 315.
+ 373.
 (pdftex.def)             Requested size: 460.935pt x 194.25633pt.
- [5 <../figures/fig1_density_gate.pdf>] [6 <../figures/fig5_ff_development.pdf>
+ [6 <../figures/fig1_density_gate.pdf>] [7 <../figures/fig5_ff_development.pdf>
 ]
-<../figures/fig6_before_after.pdf, id=318, 505.89pt x 213.19649pt>
+<../figures/fig6_before_after.pdf, id=333, 505.89pt x 213.19649pt>
 File: ../figures/fig6_before_after.pdf Graphic file (type pdf)
 <use ../figures/fig6_before_after.pdf>
 Package pdftex.def Info: ../figures/fig6_before_after.pdf  used on input line 4
-40.
+98.
 (pdftex.def)             Requested size: 460.935pt x 194.25633pt.
- [7] [8 <../figures/fig6_before_after.pdf>] [9] [10] (./manuscript.aux)
+ [8] [9 <../figures/fig6_before_after.pdf>] [10] [11] (./manuscript.aux)
 Package rerunfilecheck Info: File `manuscript.out' has not changed.
-(rerunfilecheck)             Checksum: 5701FD1FB359F907AF9658E8AA47C1FA;5200.
+(rerunfilecheck)             Checksum: DFC18957A06671C4CEFDBFD02705A91E;5889.
  ) 
 Here is how much of TeX's memory you used:
- 18518 strings out of 480171
- 344967 string characters out of 5894489
- 643528 words of memory out of 5000000
- 35834 multiletter control sequences out of 15000+600000
- 588220 words of font info for 254 fonts, out of 8000000 for 9000
+ 18539 strings out of 480171
+ 345210 string characters out of 5894489
+ 643693 words of memory out of 5000000
+ 35838 multiletter control sequences out of 15000+600000
+ 588823 words of font info for 260 fonts, out of 8000000 for 9000
  59 hyphenation exceptions out of 8191
  71i,13n,106p,1007b,926s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf/fonts/enc/dv
@@ -758,10 +758,10 @@ fonts/type1/public/lm/lmr7.pfb></usr/share/texmf/fonts/type1/public/lm/lmr8.pfb
 share/texmf/fonts/type1/public/lm/lmsy6.pfb></usr/share/texmf/fonts/type1/publi
 c/lm/lmsy7.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy8.pfb></usr/share/te
 xmf/fonts/type1/public/lm/lmtt10.pfb>
-Output written on manuscript.pdf (10 pages, 452710 bytes).
+Output written on manuscript.pdf (11 pages, 457879 bytes).
 PDF statistics:
- 553 PDF objects out of 1000 (max. 8388607)
- 320 compressed objects within 4 object streams
- 66 named destinations out of 1000 (max. 500000)
- 68816 words of extra memory for PDF output out of 74296 (max. 10000000)
+ 568 PDF objects out of 1000 (max. 8388607)
+ 334 compressed objects within 4 object streams
+ 71 named destinations out of 1000 (max. 500000)
+ 68832 words of extra memory for PDF output out of 74296 (max. 10000000)
 
